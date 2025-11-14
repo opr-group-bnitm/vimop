@@ -30,3 +30,9 @@ If you want customize your run and set many options, you may want to use a confi
 ```bash
 nextflow run OPR-group-BNITM/vimop --fastq /path/to/fastqfiles --out_dir /path/for/your/output -c /path/to/nextflow.config
 ```
+## ViMOP report
+
+ViMOP provides a summarizing report about your analysis.  
+Find out more about this report and how to read it in the next tutorial: [03_example_output_interpretation](03_example_output_interpretation.md).
+
+![image-8.png](02a_run_vimop_with_epi2me_files/image-8.png)

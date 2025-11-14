@@ -40,7 +40,7 @@ To access the raw outputfiles, you can find them in the files tab or you can ope
 ### ViMOP report
 
 ViMOP provides a summarizing report about your analysis.  
-Find out more about this report and how to read it in the next tutorial: [03_example_output_interpretation](https://github.com/OPR-group-BNITM/nanoflow/blob/ml_tutorials/tutorials/03_example_output_interpretation.md).
+Find out more about this report and how to read it in the next tutorial: [03_example_output_interpretation](03_example_output_interpretation.md).
 
 ![image-8.png](02a_run_vimop_with_epi2me_files/image-8.png)
 

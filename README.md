@@ -14,11 +14,11 @@ You can run and install the pipeline from the command line using [nextflow](http
 
 Here are tutorials for setup, running the pipeline and interpretation of the output:
 
-- [installation with EPI2ME Desktop](https://github.com/OPR-group-BNITM/nanoflow/blob/main/tutorials/01a_installation_tutorial_epi2me.md)
-- [run an analysis with EPI2ME Desktop](https://github.com/OPR-group-BNITM/nanoflow/blob/main/tutorials/02a_run_vimop_with_epi2me.md)
-- [installation from command line](https://github.com/OPR-group-BNITM/nanoflow/blob/main/tutorials/01b_installation_tutorial_command_line.md)
-- [run an analysis from the command line](https://github.com/OPR-group-BNITM/nanoflow/blob/main/tutorials/02b_run_vimop_with_commandline.md)
-- [output interpretation](https://github.com/OPR-group-BNITM/nanoflow/blob/main/tutorials/03_example_output_interpretation.md)
+- [installation with EPI2ME Desktop](https://github.com/OPR-group-BNITM/vimop/blob/main/tutorials/01a_installation_tutorial_epi2me.md)
+- [run an analysis with EPI2ME Desktop](https://github.com/OPR-group-BNITM/vimop/blob/main/tutorials/02a_run_vimop_with_epi2me.md)
+- [installation from command line](https://github.com/OPR-group-BNITM/vimop/blob/main/tutorials/01b_installation_tutorial_command_line.md)
+- [run an analysis from the command line](https://github.com/OPR-group-BNITM/vimop/blob/main/tutorials/02b_run_vimop_with_commandline.md)
+- [output interpretation](https://github.com/OPR-group-BNITM/vimop/blob/main/tutorials/03_example_output_interpretation.md)
 
 ## Purpose and limitations
 

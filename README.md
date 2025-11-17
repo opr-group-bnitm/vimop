@@ -4,7 +4,7 @@
 
 ViMOP is a pipeline for detecting known virus species in untargeted Oxford Nanopore sequencing data and reconstructing their genomes.
 
-Developed by the [Outbreak Preparedness and Response team](https://www.bnitm.de/forschung/forschungsgruppen/pathogen/abt-virologie/laborgruppe-duraffour-pahlmann/team) at the Bernhard Nocht Institute for Tropical Medicine, ViMOP is used to analyze nanopore reads from field and laboratory samples of viruses such as Lassa, Ebola, or Dengue at various sequencing sites.
+Developed by the [Outbreak Preparedness and Response team](https://www.bnitm.de/forschung/forschungsgruppen/pathogen/abt-virologie/laborgruppe-duraffour-pahlmann/team) at the Bernhard Nocht Institute for Tropical Medicine, ViMOP is used to analyze nanopore reads from clinical samples of viruses such as Lassa, Ebola, or Dengue at various sequencing sites.
 
 If you have questions, suggestions, or would like to contribute — or if you require a specific setup (e.g. for licensing) — please feel free to contact us.
 
@@ -51,7 +51,7 @@ ViMOP uses
 - [Docker](https://www.docker.com/)
 - [EPI2ME desktop](https://nanoporetech.com/software/other/epi2me-desktop-application) (optional)
 
-For installation and setup see our [command line]() or [EPI2ME desktop]() tutorials.
+For installation and setup see our command line or EPI2ME desktop [tutorials](#quickstart).
 If you do not want to use docker, you can also use a conda or apptainer profile as described in the next section.
 
 ### Alternative profiles for command line usage: Conda and Apptainer
@@ -117,14 +117,14 @@ The database config file (contamination.yaml) defines the reference sets and the
 Use the option `--contamination_filters "reagent,mouse"` for example to remove mouse and reagent reads (the default is human reads).
 The following filters are included in our database
 
-| Filter        | File Name                                               |
+| Filter        | Description                                             |
 |---------------|---------------------------------------------------------|
-| reagent       | reagent-db.fasta.gz                                     |
-| human_rna     | GCF_000001405.39_GRCh38.p13_rna.fna.gz                  |
-| human_dna     | GCF_000001405.39_GRCh38.p13_genomic.fna.gz              |
-| mouse         | GCA_000001635.8_GRCm38.p6_genomic.fna.gz                |
-| mastomys      | GCF_008632895.1_UCSF_Mcou_1_genomic.fna.gz              |
-| aedes_aegypti | GCF_002204515.2_AaegL5.0_genomic.fna.gz                 |
+| reagent       | Reagent associated sequences                            |
+| human_rna     | Human transcriptome                                     |
+| human_dna     | Human genome                                            |
+| mouse         | Mus musculus genome                                     |
+| mastomys      | Mastomys natalensis genome                              |
+| aedes_aegypti | Aedes aegypti genome                                    |
 
 ### Target virus read enrichment
 
@@ -140,6 +140,8 @@ They are listed in the following:
 | Virus                                           | Abbreviation | TaxId     |
 | ----------------------------------------------- | ------------ | --------- |
 | Emesvirus zinderi                               | MS2          | 329852    |
+| Lentivirus humimdef1                            | HIV1         | 3418650   |
+| Lentivirus humimdef2                            | HIV2         | 3418651   |
 | Mammarenavirus lassense                         | LASV         | 3052310   |
 | Mammarenavirus choriomeningitidis               | LCMV         | 305230    |
 | Mammarenavirus juninense                        | JUNV         | 2169991   |

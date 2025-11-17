@@ -10,6 +10,12 @@ COPY env.yaml .
 # Create the Conda environment from the environment.yml file
 RUN conda env create -f env.yaml
 
+# Ensure the environment is correctly configured
+ENV PATH /opt/conda/envs/env/bin:$PATH
+
+# Run medaka tools download_models to get all models
+RUN medaka tools download_models
+
 # Set the active environment
 SHELL ["/bin/bash", "-c"]
 RUN echo "source activate env" > ~/.bashrc

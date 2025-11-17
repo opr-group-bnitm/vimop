@@ -51,7 +51,7 @@ ViMOP uses
 - [Docker](https://www.docker.com/)
 - [EPI2ME desktop](https://nanoporetech.com/software/other/epi2me-desktop-application) (optional)
 
-For installation and setup see our [command line]() or [EPI2ME desktop]() tutorials.
+For installation and setup see our command line or EPI2ME desktop [tutorials](#quickstart).
 If you do not want to use docker, you can also use a conda or apptainer profile as described in the next section.
 
 ### Alternative profiles for command line usage: Conda and Apptainer

@@ -48,9 +48,13 @@ process trim {
     """
     if [[ ${params.trim_length} == 0 ]]
     then
-        gunzip -c demultiplexed.fastq.gz > trimmed.fastq
+        gunzip -c demultiplexed.fastq.gz \
+        | seqkit seq -m 1 \
+        > trimmed.fastq
     else
-        seqtk trimfq -b ${params.trim_length} -e ${params.trim_length} demultiplexed.fastq.gz > trimmed.fastq
+        seqtk trimfq -b ${params.trim_length} -e ${params.trim_length} demultiplexed.fastq.gz \
+        | seqkit seq -m 1 \
+        > trimmed.fastq
     fi
     """
 }

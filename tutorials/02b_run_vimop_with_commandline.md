@@ -14,7 +14,7 @@ tar -xvzf vimop-demo.tar.gz
 Subsequently, run ViMOP demo with default settings.
 
 ```bash
-nextflow run OPR-group-BNITM/vimop --fastq vimop-demo/lasv_simulated -o vimop-demo/output
+nextflow run OPR-group-BNITM/vimop --fastq vimop-demo/lasv_simulated --out_dir vimop-demo/output
 ```
 
 ## Options

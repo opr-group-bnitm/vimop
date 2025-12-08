@@ -739,7 +739,7 @@ process split_custom_ref {
     input:
         path fasta_file
     output:
-        path("split_refs/*.fasta") optional true
+        path("split_refs/*.fasta")
     """
     #!/usr/bin/env python
     import os

@@ -9,7 +9,6 @@
 - mainifest name (caused error when loading in EPI2ME)
 - command line example run tutorial 
 
-
 ## [1.0.3] - 2025-11-17
 ### Added
 - data base building module

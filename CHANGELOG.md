@@ -6,6 +6,7 @@
 ### Changed
 
 ### Fixed
+- mainifest name (caused error when loading in EPI2ME)
 - command line example run tutorial 
 
 

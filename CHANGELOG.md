@@ -1,5 +1,6 @@
 # Changelog
 
+
 ## [1.0.4] - 2025-
 ### Added
 
@@ -8,6 +9,7 @@
 ### Fixed
 - mainifest name (caused error when loading in EPI2ME)
 - command line example run tutorial 
+
 
 ## [1.0.3] - 2025-11-17
 ### Added
@@ -21,6 +23,7 @@
 ### Fixed
 - reporting contig stats
 - trimming 0 bases (before seqtk trim defaulted to quality based trimming designed for illumina reads)
+
 
 ## [1.0.2] - 2025-06-17
 ### Added

@@ -22,7 +22,7 @@ The detailed installation steps for the Nextflow installation can be found here:
 If you have conda installed, you can create a conda environment and install nextflow in there with:
 
 ```bash
-bash conda create -n nextflow nextflow
+conda create -n nextflow nextflow
 conda activate nextflow
 ```
 

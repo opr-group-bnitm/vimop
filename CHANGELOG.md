@@ -1,14 +1,15 @@
 # Changelog
 
 
-## [1.0.4] - 2025-
+## [1.0.4] - 2025-12-
 ### Added
 
 ### Changed
 
 ### Fixed
-- mainifest name (caused error when loading in EPI2ME)
-- command line example run tutorial 
+- manifest name (caused bug when loading in EPI2ME desktop version 5.3.0)
+- fixed tutorial error (--out_dir instead of -o)
+- fixed bug "Cannot invoke method optional() on null object" when using Nextflow 25.10.2
 
 
 ## [1.0.3] - 2025-11-17

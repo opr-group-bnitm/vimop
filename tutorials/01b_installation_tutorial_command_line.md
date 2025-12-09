@@ -8,21 +8,39 @@
   - [Run ViMOP demo](#run-vimop)
 
 ## Prerequisites
+## Docker installation
+Please note that you need administrator rights to install Docker. After completing all installation steps however, you will be able to run Docker without admin rights.  
+If you cannot install Docker in your system and are on Linux, you can still use ViMOP using the conda or apptainer profile. Just remember to activate the corresponding profiles everytime you execute ViMOP by using the parameters `-profile conda` or `-profile apptainer`.
 
-ViMOP uses epi2me, nextflow and docker. All of these dependencies can be installed with and without the usage of the command line depending on the user's preference.
+### MacOS and Windows
+For MacOS and Windows we recommend installing Docker Desktop. For this please refer to [01a_installation_tutorial_epi2me.ipynb](01a_installation_tutorial_epi2me.md#macos-and-windows)
 
-### Docker installation
+### Linux Distributions
+You can find a detailed installation manual for your system in the [Docker docs](https://docs.docker.com/engine/install/).  
+For most Linux distributions, docker offers a [convenience script](https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script) for installation. You can execute it with
 
-You can find detailed installation steps for Docker in the [Docker docs](https://docs.docker.com/engine/install/). After following the steps on that web page for your operating system you should make Docker managable as non-root user and make it run on start up. For this, follow the steps on this website: [Post-install instructions](https://docs.docker.com/engine/install/linux-postinstall/).
+```
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh ./get-docker.sh
+```
+
+After following the steps on that web page, you should make Docker managable as non-root user. For this, follow the steps on this website: [Manage Docker as non-root user](https://docs.docker.com/engine/install/linux-postinstall/), that tells you to run the following commands:  
+```
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+```
+You may need to restart your Laptop so that Docker shows up as installed in your system.  
 
 ### Nextflow installation
 
 The detailed installation steps for the Nextflow installation can be found here: [nextflow documentation](https://nextflow.io/docs/latest/install.html#install-page).  
+ViMOP was developed under nextflow version 24.10. However, newer versions should also work.
 
 If you have conda installed, you can create a conda environment and install nextflow in there with:
 
-```bash
-conda create -n nextflow nextflow
+```
+conda create -n nextflow nextflow=24.10
 conda activate nextflow
 ```
 
@@ -30,7 +48,7 @@ conda activate nextflow
 
 To run ViMOP you need to install the application and set up the database. Do this in one command with
 
-```bash
+```
 nextflow run OPR-group-BNITM/vimop --download_db_all
 ```
 

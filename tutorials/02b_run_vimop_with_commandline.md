@@ -1,6 +1,7 @@
 # Start an analysis with ViMOP using the command line
 
-Make sure ViMOP is installed as described [here](01b_installation_tutorial_command_line.md).
+Make sure ViMOP is installed as described [here](01b_installation_tutorial_command_line.md).  
+If you installed ViMOP without Docker, remember to set the parameter ```-profile``` to ```conda``` or ```apptainer``` at every execution.
 
 ## Run ViMOP
 

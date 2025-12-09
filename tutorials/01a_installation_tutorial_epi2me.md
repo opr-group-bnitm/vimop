@@ -18,14 +18,16 @@ This tutorial describes how to install Docker, Nextflow, EPI2ME and then ViMOP v
 # Prerequisites
 
 ## Docker installation
-### MacOS and Windows
-If you do not have the Docker engine already installed in your system, you can install it bundled together with Docker Desktop. In MacOS and Windows the installation of Docker Desktop works completely without the command line. Download the Docker Desktop installer according to your operating system on the bottom of this [Docker docs page](https://docs.docker.com/desktop/) and follow the instructions after opening the installer.
+Please note that you need administrator rights to install Docker. After completing all installation steps however, you should be able to run Docker without admin rights.
 
-### Linux distributions (Ubuntu, Debian, Fedora,...)
-For Linux we recommend the installation of the Docker engine. You can find a detailed installation manual in the [Docker docs](https://docs.docker.com/engine/install/). After following the steps on that web page, you should make Docker managable as non-root user. For this, follow the steps on this website: [Manage Docker as non-root user](https://docs.docker.com/engine/install/linux-postinstall/). You may need to restart your Laptop so that Docker shows up as installed in your system.
+### MacOS and Windows
+If you do not have the Docker engine already installed in your system, you can install it bundled together with Docker Desktop. In MacOS and Windows the installation of Docker Desktop works completely without the command line. Download the Docker Desktop installer according to your operating system on the bottom of this [Docker docs page](https://docs.docker.com/desktop/) and follow the instructions after opening the installer. Restart your system after you are done with the installation. Remember to start the Docker Desktop App before you procede with the tutorial.
+
+### Linux distributions
+For Linux we recommend the installation of the Docker engine. This requires a bit of command line usage by following the Docker installation steps in [01b_installation_tutorial_command_line.md](01b_installation_tutorial_command_line.md#linux-distributions)
 
 ## EPI2ME installation
-To use ViMOP in the graphical user interface you need to install Oxford Nanopore's EPI2ME Desktop application. Download the installer according to your operating system from the [EPI2ME website](https://epi2me.nanoporetech.com/downloads/). At the time of this tutorial the most recent version of EPI2ME Desktop is version 5.2.5. Follow the installation instructions after opening the downloaded file, for Ubuntu/Debian you need to open the file with the software center. EPI2ME also provides an [installation guide](https://epi2me.nanoporetech.com/epi2me-docs/installation/) for all operating systems.  
+To use ViMOP in the graphical user interface you need to install Oxford Nanopore's EPI2ME Desktop application. Download the installer according to your operating system from the [EPI2ME website](https://epi2me.nanoporetech.com/downloads/). At the time of this tutorial the most recent version of EPI2ME Desktop is version 5.3. Follow the installation instructions after opening the downloaded file, for Ubuntu/Debian you need to open the file with the software center. EPI2ME also provides an [installation guide](https://epi2me.nanoporetech.com/epi2me-docs/installation/) for all operating systems.  
 
 ### Start up EPI2ME
 After starting the application, you will be prompted to sign in. However, you can just continue as guest. Sometimes that option is hidden, but you can find it by clicking on the three dots at the bottom.  

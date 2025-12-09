@@ -8,8 +8,11 @@
 
 ### Fixed
 - manifest name (caused bug when loading in EPI2ME desktop version 5.3.0)
-- fixed tutorial error (--out_dir instead of -o)
-- fixed bug "Cannot invoke method optional() on null object" when using Nextflow 25.10.2
+- tutorial error (--out_dir instead of -o)
+- bug "Cannot invoke method optional() on null object" when using Nextflow 25.10.2
+- conda profile works with "nextflow run" command
+
+### Removed
 
 
 ## [1.0.3] - 2025-11-17

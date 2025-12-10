@@ -30,7 +30,7 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
 ```
-You may need to restart your Laptop so that Docker shows up as installed in your system.  
+You may need to restart your machine so that Docker shows up as installed in your system.  
 
 ### Alternatives to Docker
 

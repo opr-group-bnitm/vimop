@@ -7,7 +7,7 @@ In this tutorial we will
 
 For this we will go through the HTML report provided by ViMOP section by section.  
 
-After completing the installation tutorial, you will end up with a [report file](https://opr.bnitm.de/example_data/report_example_data.html) and the output files. Feel free to explore our example report through the previously provided link. You will find this HTML-report when selecting the **Reports tab** in the EPI2ME interface, or in the output directory that you would have defined via the command line.
+After completing the installation and the run tutorials, you will end up with a [report file](https://opr.bnitm.de/example_data/report_example_data.html) and the output files. Feel free to explore our example report through the previously provided link. You will find this HTML-report when selecting the **Reports tab** in the EPI2ME interface, or in the output directory that you would have defined via the command line.
 
 ## Table of Contents
 
@@ -36,7 +36,7 @@ This includes:
   - here we can see the metagenomic overview of our sample
   - If canu failed to build a contig and thus the workflow did not yield a result, you can check if there was any virus found here and restart the analysis with a custom fasta file as a reference. 
 
-Our demo run only contains 5000 simulated reads, a real data set would have much more reads, but the length and quality distribution would be similar since the simulator was trained on a real LASV sequencing data set. In the Read classification tab we can see the metagenomic overview of our sample. If canu failed to build a contig and thus the workflow did not yield a result, you can check if there was any virus found here and restart the analysis with a custom fasta file as a reference. 
+Our demo run only contains 5000 simulated reads, a real data set would have many more reads, but the length and quality distribution would be similar since the simulator was trained on a real LASV sequencing data set. In the Read classification tab we can see the metagenomic overview of our sample. If canu failed to build a contig and thus the workflow did not yield a result, you can check if there was any virus found here and restart the analysis with a custom fasta file as a reference. 
 
 ![image.png](03_example_output_interpretation_files/image.png)  
 
@@ -95,13 +95,13 @@ Let's find out how to spot them.
 
 False postives can come up due to bad entries in NCBI genbank. Examples are sequences that are falsely assigned to be a virus. If you find an exotic virus in the non-curated part of the database, it's worth a second look. Another source may be misassembled virus genomes containing a host fragment.
 
-The BLAST hit will typically match only a small fraction of both the contig and the reference genome. The contig may also be classified as something else by Centrifuge (e.g. the host). This happens, because our BLAST database only contains the virus genomes (while the compressed centrifuge index allows us to include bacteria and host).
+The BLAST hit will typically match only a small fraction of both the contig and the reference genome. The contig may also be classified as something else by centrifuge (e.g. the host). This happens, because our BLAST database only contains the virus genomes (while the compressed centrifuge index allows us to include bacteria and host).
 
-Like tha BLAST hit, the consensus (aka. reference-based assembly) will also be partial.
+Like the BLAST hit, the consensus (aka reference-based assembly) will also be partial.
 
 ### Homology between non-virus and virus
 
-Since our BLAST database contains only virus genomes, sequences originating from non-viral genomes but similar to a virus may find a hit in the BLAST database. Again, you should look into your Contigs and Consensus table.
+Since our BLAST database contains only virus genomes, sequences originating from non-viral genomes but similar to a virus may find a hit in the BLAST database. Again, you should look into your contigs and consensus table.
 
 The following measures help you
 - low **Coverage** in the consensus section
@@ -125,8 +125,8 @@ If you saw any unexpected outputs as described previously, or if ViMOP failed to
 ![image-11.png](03_example_output_interpretation_files/image-11.png)
 2. Open the FASTA files in that subfolder
 3. Select the contig(s) that caused your suspicion and perform a search on [NCBI BLASTn](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&BLAST_SPEC=GeoBlast&PAGE_TYPE=BlastSearch).
-  - in many cases, this will clearify the origin of your sequence
+  - in many cases, this will clarify the origin of your sequence
 
 ### View read mappings
 
-You can use a tools like [IGV](https://igv.org/) (which is easily installable using conda) to look at your read mapped against a reference. The output subfolder `consensus` holds the detected reference genomes and the mapped reads in .bam format.
+You can use a tool like [IGV](https://igv.org/) (which is installable using conda) to look at your reads mapped against a reference. The output subfolder `consensus` holds the detected reference genomes and the mapped reads in .bam format.

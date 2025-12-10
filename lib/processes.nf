@@ -743,7 +743,7 @@ process split_custom_ref {
     input:
         path fasta_file
     output:
-        path("split_refs/*.fasta") optional true
+        path("split_refs/*.fasta")
     """
     #!/usr/bin/env python
     import os
@@ -869,6 +869,14 @@ process subsample_alignments {
     output:
         tuple val(meta), path("ref.fasta"), path("out.bam"), path("out.bam.bai")
     """
+    set -euo pipefail
+
+    # Ensure jvarkit can find java where its wrapper expects it
+    if [[ -n "\$CONDA_PREFIX" && ! -x "\$CONDA_PREFIX/bin/java" ]]
+    then
+        ln -sf "\$(command -v java)" "\$CONDA_PREFIX/bin/java"
+    fi
+
     target_coverage=${params.sv_cap_coverage}
     if [[ \$target_coverage -gt 0 ]]
     then

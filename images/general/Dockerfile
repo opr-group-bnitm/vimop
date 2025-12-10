@@ -14,3 +14,4 @@ RUN conda env create -f env.yaml
 SHELL ["/bin/bash", "-c"]
 RUN echo "source activate env" > ~/.bashrc
 ENV PATH /opt/conda/envs/env/bin:$PATH
+ENV CONDA_PREFIX=/opt/conda/envs/env

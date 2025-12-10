@@ -58,21 +58,21 @@ Before analyzing your first sequencing run, you need to install the data base. F
   
 ![image-3.png](01a_installation_tutorial_epi2me_files/image-3.png)
  
-4. Launch the workflow  
+2. Launch the workflow  
   
 ![image-4.png](01a_installation_tutorial_epi2me_files/image-4.png)
  
-5. Open the setup menu  
+3. Open the setup menu  
   
 ![image-5.png](01a_installation_tutorial_epi2me_files/image-5.png)
  
-6. Select to download all databases. If you want to update an already existing database you have downloaded from us, you need to select to overwrite the existing databases as well.  
+4. Select to download all databases. If you want to update an already existing database you have downloaded from us, you need to select to overwrite the existing databases as well.  
   
 ![image-6.png](01a_installation_tutorial_epi2me_files/image-6.png)
 
 In this same menu you could also choose to only download or update each section of the database separately (i.e. centrifuge index, host and contaminant database and virus reference genome database). Which is especially recommended in settings with bad network connection.
  
-7. Launch the workflow.  
+5. Launch the workflow.  
   
 ![image-7.png](01a_installation_tutorial_epi2me_files/image-7.png)
  

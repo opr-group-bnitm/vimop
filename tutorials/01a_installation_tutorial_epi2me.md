@@ -13,8 +13,8 @@ This tutorial describes how to install Docker, Nextflow, EPI2ME and then ViMOP v
     - [Install workflow](#install-workflow)
     - [Set up the data base](#set-up-the-data-base)
     - [Demo run](#demo-run)
-  - [Accessing ViMOP via the command line](#accessing-vimop-via-the-command-line)
-
+  - [Accessing the source code via the command line](#accessing-the-source-code-via-the-command-line)
+  
 # Prerequisites
 
 ## Docker installation

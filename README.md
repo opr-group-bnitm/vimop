@@ -58,8 +58,10 @@ If you do not want to use docker, you can also use a conda or apptainer profile 
 
 By default ViMOP uses docker (for setup see the installation tutorials).
 This should run on all operating systems and so far has been tested on the following operating systems:
-- MacOS 14.7 and 15.5 (Intel core i9)
-- Ubuntu 22.04.5 and 24.04.1
+- MacOS 15.6.1 (Intel core i9); Nextflow 25.10.2; Docker 25.0.2
+- MacOS 15.5 (Intel core i9); Nextflow 25.10.2; Docker 24.0.5
+- Ubuntu 24.04.1; Nextflow 25.10.2; Docker 28.5.1
+- Ubuntu 22.04.5; Nextflow 25.10.2; Docker 29.1.2
 
 If you prefer to not use docker and you are using Linux, there are two alternative profiles implemented in ViMOP.
 

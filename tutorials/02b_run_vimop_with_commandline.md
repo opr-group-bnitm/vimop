@@ -34,5 +34,3 @@ nextflow run opr-group-bnitm/vimop --fastq /path/to/fastqfiles --out_dir /path/f
 
 ViMOP provides a summarizing report about your analysis run.  
 Find out more about this report and how to read it in the next tutorial: [03_example_output_interpretation](03_example_output_interpretation.md).
-
-![image-8.png](02a_run_vimop_with_epi2me_files/image-8.png)

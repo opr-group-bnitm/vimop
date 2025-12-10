@@ -1,6 +1,7 @@
 cff-version: 1.2.0
 title: "ViMOP"
 type: software
+version: 1.0.4
 message: "If you use ViMOP in your research, please cite it as below."
 
 authors:
@@ -83,12 +84,13 @@ authors:
 keywords:
   - metagenomics
   - virus
-  - nanopore sequencing
-  - field sequencing
+  - "nanopore sequencing"
+  - "field sequencing"
   - bioinformatics
   - pipeline
 
-notes: >
-  * contributed equally: Nils Peter Petersen, Mia Le.
-  † contributed equally as senior authors: Sophie Duraffour, Liana Eleni Kafetzopoulou.
-  Corresponding author: Nils Peter Petersen
+repository-code: "https://github.com/opr-group-bnitm/vimop"
+identifiers:
+  - description: "The concept DOI of the work."
+    type: doi
+    value: 10.5281/zenodo.15592229

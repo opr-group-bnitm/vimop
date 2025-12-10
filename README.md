@@ -63,24 +63,18 @@ This should run on all operating systems and so far has been tested on the follo
 
 If you prefer to not use docker and you are using Linux, there are two alternative profiles implemented in ViMOP.
 
-The conda profile is activated using the option `-profile conda`.
+The **conda** profile is activated using the option `-profile conda`.
 This has been tested on
-- Nextflow 24.10.0
-- Ubuntu 24.04.1
-- conda 4.12.0
+- Ubuntu 24.04.1; Nextflow 25.10.2; conda 25.11.0
 
-You can also use mamba typing `-profile conda,mamba`.
+You can also use **mamba** typing `-profile conda,mamba`.
 However, some versions of mamba and nextflow may not work together.
-We succesfully ran 
-- Nextflow 24.10.0
-- Ubuntu 24.04.1
-- conda 4.12.0
-- mamba 0.23.0
+We succesfully ran this with
+- Ubuntu 24.04.1; Nextflow 25.10.2; conda 25.11.0; mamba 2.4.0
 
-The apptainer profile is activated using `-profile apptainer`.
+The **apptainer** profile is activated using `-profile apptainer`.
 It has been tested on
-- Ubuntu 24.04.1
-- apptainer version 1.4.2
+- Ubuntu 24.04.1; Nextflow 25.10.2; apptainer 1.4.5
 
 ## Workflow
 ![vimop flowchart](ViMOP_flowchart.png)

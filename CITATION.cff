@@ -1,0 +1,94 @@
+cff-version: 1.2.0
+title: "ViMOP"
+type: software
+message: "If you use ViMOP in your research, please cite it as below."
+
+authors:
+  - family-names: Petersen
+    given-names: Nils Peter
+    orcid: "https://orcid.org/0000-0002-0557-3567"
+    email: "nils.petersen@bnitm.de"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany"
+
+  - family-names: Le
+    given-names: Mia
+    orcid: "https://orcid.org/0009-0006-7677-5306"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany; University of Hamburg, Institute for Computational Systems Biomedicine, Hamburg, Germany"
+
+  - family-names: Renevey
+    given-names: Annick
+    orcid: "https://orcid.org/0000-0001-7411-6063"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany"
+
+  - family-names: Emua
+    given-names: Ehizojie
+    orcid: "https://orcid.org/0009-0004-9968-0815"
+    affiliation: "Irrua Specialist Teaching Hospital, Irrua, Edo State, Nigeria"
+
+  - family-names: Ryter
+    given-names: Sarah
+    orcid: "https://orcid.org/0000-0003-1597-9656"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany"
+
+  - family-names: Annibaldis
+    given-names: Giuditta
+    orcid: "https://orcid.org/0009-0007-1570-4624"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany"
+
+  - family-names: Camara
+    given-names: Jacob
+    orcid: "https://orcid.org/0000-0003-4837-0206"
+    affiliation: "Virology Research Center/Laboratory of Viral Hemorrhagic Fevers, Conakry, Guinea"
+
+  - family-names: Boumbaly
+    given-names: Sanaba
+    orcid: "https://orcid.org/0000-0002-4506-6033"
+    affiliation: "Virology Research Center/Laboratory of Viral Hemorrhagic Fevers, Conakry, Guinea"
+
+  - family-names: Erameh
+    given-names: Cyril
+    orcid: "https://orcid.org/0000-0001-7783-2495"
+    affiliation: "Irrua Specialist Teaching Hospital, Irrua, Edo State, Nigeria"
+
+  - family-names: Laske
+    given-names: Tanja
+    orcid: "https://orcid.org/0000-0002-7922-7595"
+    affiliation: "University of Hamburg, Institute for Computational Systems Biomedicine, Hamburg, Germany; Leibniz Institute of Virology, Viral Systems Modeling, Hamburg, Germany"
+
+  - family-names: Baumbach
+    given-names: Jan
+    orcid: "https://orcid.org/0000-0002-0282-0462"
+    affiliation: "University of Hamburg, Institute for Computational Systems Biomedicine, Hamburg, Germany; University of Southern Denmark, Department of Mathematics and Computer Science, Computational Biomedicine Lab, Odense, Denmark"
+
+  - family-names: Lemey
+    given-names: Philippe
+    orcid: "https://orcid.org/0000-0003-2826-5353"
+    affiliation: "KU Leuven, Rega Institute, Department of Microbiology, Immunology and Transplantation, Leuven, Belgium"
+
+  - family-names: Günther
+    given-names: Stephan
+    orcid: "https://orcid.org/0000-0002-6562-0230"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany"
+
+  - family-names: Duraffour
+    given-names: Sophie
+    orcid: "https://orcid.org/0000-0002-1239-4372"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany"
+
+  - family-names: Kafetzopoulou
+    given-names: Liana Eleni
+    orcid: "https://orcid.org/0000-0003-4531-1374"
+    affiliation: "Bernhard Nocht Institute for Tropical Medicine (BNITM), Hamburg, Germany; German Center for Infection Research (DZIF), partner site Hamburg–Lübeck–Borstel–Riems, Hamburg, Germany; KU Leuven, Rega Institute, Department of Microbiology, Immunology and Transplantation, Leuven, Belgium"
+
+keywords:
+  - metagenomics
+  - virus
+  - nanopore sequencing
+  - field sequencing
+  - bioinformatics
+  - pipeline
+
+notes: >
+  * contributed equally: Nils Peter Petersen, Mia Le.
+  † contributed equally as senior authors: Sophie Duraffour, Liana Eleni Kafetzopoulou.
+  Corresponding author: Nils Peter Petersen

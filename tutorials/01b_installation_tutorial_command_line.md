@@ -12,7 +12,7 @@
 Please note that you need administrator rights to install Docker. After completing all installation steps however, you will be able to run Docker without admin rights.  
 
 ### MacOS and Windows
-For MacOS and Windows we recommend installing Docker Desktop. For this please refer to [01a_installation_tutorial_epi2me.ipynb](01a_installation_tutorial_epi2me.md#macos-and-windows)
+For MacOS and Windows we recommend installing Docker Desktop. For this please refer to [01a_installation_tutorial_epi2me.md](01a_installation_tutorial_epi2me.md#macos-and-windows)
 
 ### Linux Distributions
 You can find a detailed installation manual for your system in the [Docker docs](https://docs.docker.com/engine/install/).  

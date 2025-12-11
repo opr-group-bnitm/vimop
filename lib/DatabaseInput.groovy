@@ -6,7 +6,6 @@ import org.yaml.snakeyaml.Yaml
 
 
 class DatabaseInput {
-
     String virusDir
     String virusConfigFileName
     String contaminantsDir
@@ -24,13 +23,26 @@ class DatabaseInput {
     boolean doFilterWithCentrifuge
 
     static void exitError(String message) {
-        throw new RuntimeException(message)
+        System.err.println("\u001B[31m${message}\u001B[0m")
+        System.exit(1)
     }
 
     static void assertDir(String dir) {
         def path = new File(dir)
         if (!path.exists() || !path.isDirectory()) {
-            exitError("The directory '${path}' does not exist. Exiting.")
+            def fullMessage = (
+                "ERROR\n"
+                + "The directory '${path}' does not exist.\n"
+                + "Is the database installed? You can easily install it:\n"
+                + "\n"
+                + "If you are using EPI2ME Desktop check the respective boxes in the section 'Setup'.\n"
+                + "\n"
+                + "If you are running ViMOP from command line download the whole database in one run:\n"
+                + "nextflow run opr-group-bnitm/vimop --download_db_all\n"
+                + "\n"
+                + "Exiting."
+            )
+            exitError(fullMessage)
         }
     }
 
@@ -101,47 +113,46 @@ class DatabaseInput {
     }
 
     DatabaseInput(Map dbParams) {
+
         def baseDir = getDir(dbParams.base_db, dbParams.database_defaults.base)
-        
-        this.virusDir = getDir(
-            dbParams.virus_db,
-            "${baseDir}/${dbParams.database_defaults.virus}"
-        )
+
+        // contamination
+        def cf = dbParams.contamination_filters?.toLowerCase()
+        def doFilterContaminants = !(cf in [null, 'null', 'none', 'false'])
+
         this.contaminantsDir = getDir(
             dbParams.contaminants_db,
             "${baseDir}/${dbParams.database_defaults.contaminants}"
         )
-        this.classificationDir = getDir(
-            dbParams.classification_db,
-            "${baseDir}/${dbParams.database_defaults.classification}"
-        )
-
-        // contamination
         this.contaminationConfigFileName = getFile(
             dbParams.contaminants_db_config,
             "${this.contaminantsDir}/${dbParams.database_defaults.contaminants_db_config}"
         )
         def contaminationConfig = upperCaseMap([readYamlConfig(this.contaminationConfigFileName)['filters']])
 
-        def cf = dbParams.contamination_filters?.toLowerCase()
-        if (cf in [null, 'null', 'none', 'false']) {
-            this.contaminationFilters = []
-            this.contaminationFilterFiles = []
-        } else {
+        if (doFilterContaminants) {
             this.contaminationFilters = dbParams.contamination_filters.tokenize(",")
             this.contaminationFilterFiles = this.contaminationFilters.collect {
                 contaminant -> getFileFromConfig(contaminationConfig, this.contaminantsDir, contaminant.toUpperCase())
             }
+        } else {
+            this.contaminationFilters = []
+            this.contaminationFilterFiles = []
         }
 
         // virus
+        def virusTargetNames = (dbParams.targets ?: '').tokenize(',')
+
+        this.virusDir = getDir(
+            dbParams.virus_db,
+            "${baseDir}/${dbParams.database_defaults.virus}"
+        )
         this.virusConfigFileName = getFile(
             dbParams.virus_db_config,
             "${this.virusDir}/${dbParams.database_defaults.virus_db_config}"
         )
         def virusConfig = readYamlConfig(this.virusConfigFileName)
         def filterFilenames = getVirusFilterPaths(virusConfig)
-        def virusTargetNames = dbParams.targets.tokenize(",")
         this.virusTargets = virusTargetNames.collect {
             target -> [
                 target: target,
@@ -157,13 +168,17 @@ class DatabaseInput {
         assertFile("${this.blastDir}/${this.blastPrefix}.ndb")
 
         // classification
+        this.doClassify = dbParams.centrifuge_do_classify
+        this.doFilterWithCentrifuge = dbParams.centrifuge_do_classify && dbParams.centrifuge_do_filter
+
+        this.classificationDir = getDir(
+            dbParams.classification_db,
+            "${baseDir}/${dbParams.database_defaults.classification}"
+        )
         this.classificationConfigFileName = getFile(
             dbParams.classification_db_config,
             "${this.classificationDir}/${dbParams.database_defaults.classification_db_config}"
         )
-
-        this.doClassify = dbParams.centrifuge_do_classify
-        this.doFilterWithCentrifuge = dbParams.centrifuge_do_classify && dbParams.centrifuge_do_filter
 
         def classificationConfig = readYamlConfig(this.classificationConfigFileName)
         classificationConfig.files.each { fname -> assertFile("${this.classificationDir}/${fname}") }

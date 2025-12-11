@@ -30,7 +30,7 @@ class SystemRequirements {
             + "The minimum system requirements are an approximation and may not always fit.\n"
             + "You can change them by setting the respective parameters in EPI2ME (Miscellaneous Options), in the configs or via command line (type --help to list the options)."
         )
-        System.err.println(fullMessage)
+        System.err.println("\u001B[31m${fullMessage}\u001B[0m")
         System.exit(1)
     }
 

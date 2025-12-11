@@ -73,9 +73,8 @@ include {
 workflow pipeline {
     take:
         samples
+        db_config
     main:
-        db_config = new DatabaseInput(params)
-
         samplenames = samples
         | map { meta, reads, stats -> meta.alias }
 
@@ -513,7 +512,8 @@ workflow {
             "sample_sheet": params.sample_sheet,
             "stats": true
         ])
-        pipeline(samples)
+        db_config = new DatabaseInput(params)
+        pipeline(samples, db_config)
         pipeline.out.results
         | toList
         | flatMap

@@ -23,24 +23,28 @@ class DatabaseInput {
     boolean doFilterWithCentrifuge
 
     static void exitError(String message) {
-        System.err.println("\u001B[31m${message}\u001B[0m")
+        System.err.println(message)
         System.exit(1)
+    }
+
+    static String red(String message) {
+        return "\u001B[31m${message}\u001B[0m"
     }
 
     static void assertDir(String dir) {
         def path = new File(dir)
         if (!path.exists() || !path.isDirectory()) {
             def fullMessage = (
-                "ERROR\n"
-                + "The directory '${path}' does not exist.\n"
-                + "Is the database installed? You can easily install it:\n"
+                red("ERROR\n")
+                + red("The directory '${path}' does not exist.\n")
+                + red("Is the database installed? You can easily install it:\n")
                 + "\n"
-                + "If you are using EPI2ME Desktop check the respective boxes in the section 'Setup'.\n"
+                + red("If you are using EPI2ME Desktop check the respective boxes in the section 'Setup'.\n")
                 + "\n"
-                + "If you are running ViMOP from command line download the whole database in one run:\n"
-                + "nextflow run opr-group-bnitm/vimop --download_db_all\n"
+                + red("If you are running ViMOP from command line download the whole database in one run:\n")
+                + red("nextflow run opr-group-bnitm/vimop --download_db_all\n")
                 + "\n"
-                + "Exiting."
+                + red("Exiting.")
             )
             exitError(fullMessage)
         }

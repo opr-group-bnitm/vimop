@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "https://raw.githubusercontent.com/opr-group-bnitm/vimop/nextflow_schema.json",
+  "$id": "https://raw.githubusercontent.com/opr-group-bnitm/vimop/main/nextflow_schema.json",
   "title": "opr-group-bnitm/vimop",
   "workflow_title": "ViMOP: Virus Metagenomics Outbreak Pipeline",
   "description": "Reference-based virus assembly with automatic reference selection from ONT reads.",

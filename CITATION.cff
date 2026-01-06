@@ -94,3 +94,41 @@ identifiers:
   - description: "The concept DOI of the work."
     type: doi
     value: 10.5281/zenodo.15592229
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Petersen
+      given-names: Nils Peter
+    - family-names: Le
+      given-names: Mia
+    - family-names: Renevey
+      given-names: Annick
+    - family-names: Emua
+      given-names: Ehizojie
+    - family-names: Ryter
+      given-names: Sarah
+    - family-names: Annibaldis
+      given-names: Giuditta
+    - family-names: Camara
+      given-names: Jacob
+    - family-names: Boumbaly
+      given-names: Sanaba
+    - family-names: Erameh
+      given-names: Cyril
+    - family-names: Laske
+      given-names: Tanja
+    - family-names: Baumbach
+      given-names: Jan
+    - family-names: Lemey
+      given-names: Philippe
+    - family-names: Günther
+      given-names: Stephan
+    - family-names: Duraffour
+      given-names: Sophie
+    - family-names: Kafetzopoulou
+      given-names: Liana Eleni
+  doi: "10.1093/bioinformatics/btaf687"
+  journal: "Bioinformatics"
+  title: "ViMOP: A user-friendly and field-applicable pipeline for untargeted viral genome nanopore sequencing"
+  year: 2025

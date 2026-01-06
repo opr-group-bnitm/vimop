@@ -503,7 +503,7 @@ Use `--custom_db_centrifuge_version` and `--custom_db_centrifuge_description` to
 
 If you are using ViMOP please cite us:
 
-Petersen NP, Le M, Renevey A, Emua E, Ryter S, Annibaldis G, Camara J, Boumbaly S, Erameh C, Laske T, Baumbach J, Lemey P, Günther S, Duraffour S, Kafetzopoulou LE. ViMOP: A user-friendly and field-applicable pipeline for untargeted viral genome nanopore sequencing. *Bioinformatics*. 2025; btaf687. [10.1093/bioinformatics/btaf687](https://doi.org/10.1093/bioinformatics/btaf687)
+Petersen NP, Le M, Renevey A, Emua E, Ryter S, Annibaldis G, Camara J, Boumbaly S, Erameh C, Laske T, Baumbach J, Lemey P, Günther S, Duraffour S, Kafetzopoulou LE. ViMOP: A user-friendly and field-applicable pipeline for untargeted viral genome nanopore sequencing. *Bioinformatics*. 2025; btaf687.[10.1093/bioinformatics/btaf687](https://doi.org/10.1093/bioinformatics/btaf687)
 
 This repository is linked to [zenodo](https://doi.org/10.5281/zenodo.15592229), where you can find a DOI for the version you are using.
 

@@ -53,7 +53,10 @@ process check_download_necessary {
 
 
 process download_parts {
-    maxParallel = 1
+    // Parallelize independent, checksum-verified archive parts. The upstream
+    // default is conservative for weak connections; this host has sufficient
+    // bandwidth and disk for eight concurrent downloads.
+    maxParallel = 8
     label "download"
     errorStrategy "retry"
     maxRetries 3

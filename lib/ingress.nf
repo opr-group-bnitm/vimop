@@ -4,17 +4,11 @@
 // This file is subject to the terms described in the LICENSE file in the root of this repository.
 
 
-import java.nio.file.NoSuchFileException
-
-import ArgumentParser
-
 enum InputType {
     SingleFile,
     TopLevelDir,
     DirWithSubDirs,
 }
-
-N_OPEN_FILES_LIMIT = 128
 
 
 /**
@@ -24,7 +18,7 @@ N_OPEN_FILES_LIMIT = 128
 * @param extensions: list of valid file extensions
 * @return: boolean whether the file has one of the provided extensions
 */
-def is_target_file(Path file, List extensions) {
+def is_target_file(file, extensions) {
     extensions.any { ext -> file.name.endsWith(ext) }
 }
 
@@ -46,7 +40,7 @@ def add_run_IDs_to_meta(ch) {
     ch = ch | map { meta, reads, stats ->
         ArrayList run_ids = []
         if (stats) {
-            run_ids = stats.resolve("run_ids").splitText().collect { it.strip() }
+            run_ids = stats.resolve("run_ids").splitText().collect { line -> line.strip() }
             ingressed_run_ids += run_ids
         }
         // `meta + [...]` returns a new map which is handy to avoid any
@@ -114,7 +108,7 @@ def fastq_ingress(Map arguments)
     }
     // add sample sheet entries without barcode dirs to the results channel and extract
     // the run IDs into the metamaps before returning
-    ch_result = ch_result.mix(input.missing.map { [*it, null] })
+    ch_result = ch_result.mix(input.missing.map { v -> v + [null] })
     return add_run_IDs_to_meta(ch_result)
 }
 
@@ -141,28 +135,28 @@ def watch_path(Path input, Map margs, ArrayList extensions) {
     // all sub-dirs)
     def ch_existing_input = Channel.fromPath(input)
     | concat(Channel.fromPath("$input/*", type: 'dir'))
-    | map { get_target_files_in_dir(it, extensions) }
+    | map { dir -> get_target_files_in_dir(dir, extensions) }
     | flatten
     // now get channel with files found by `watchPath`
-    def ch_watched = Channel.watchPath("$input/**").until { it.name.startsWith('STOP') }
+    def ch_watched = Channel.watchPath("$input/**").until { file_path -> file_path.name.startsWith('STOP') }
     // only keep target files
-    | filter { is_target_file(it, extensions) }
+    | filter { file_path -> is_target_file(file_path, extensions) }
     // merge the channels
     ch_watched = ch_existing_input | concat(ch_watched)
     // check if input is as expected; start by throwing an error when finding files in
     // top-level dir and sub-directories
     String prev_input_type
     ch_watched
-    | map {
-        String input_type = (it.parent == input) ? "top-level" : "sub-dir"
+    | map { file_path ->
+        String input_type = (file_path.parent == input) ? "top-level" : "sub-dir"
         if (prev_input_type && (input_type != prev_input_type)) {
             error "`watchPath` found input files in the top-level directory " +
                 "as well as in sub-directories."
         }
         // if file is in a sub-dir, make sure it's not a sub-sub-dir
-        if ((input_type == "sub-dir") && (it.parent.parent != input)) {
+        if ((input_type == "sub-dir") && (file_path.parent.parent != input)) {
             error "`watchPath` found an input file more than one level of " +
-                "sub-directories deep ('$it')."
+                "sub-directories deep ('$file_path')."
         }
         // we also don't want files in the top-level dir when we got a sample sheet
         if ((input_type == "top-level") && margs["sample_sheet"]) {
@@ -177,7 +171,7 @@ def watch_path(Path input, Map margs, ArrayList extensions) {
         // a map with the barcodes as keys)
         def ch_sample_sheet = get_sample_sheet(file(margs.sample_sheet), margs.required_sample_types)
         | collect
-        | map { it.collectEntries { [(it["barcode"]): it] } }
+        | map { rows -> rows.collectEntries { row -> [(row["barcode"]): row] } }
         // now we can use this channel to annotate all files with the corresponding info
         // from the sample sheet
         ch_watched = ch_watched
@@ -193,19 +187,19 @@ def watch_path(Path input, Map margs, ArrayList extensions) {
         }
     } else {
         ch_watched = ch_watched
-        | map {
+        | map { file_path ->
             // This file could be in the top-level dir or a sub-dir. In the first case
             // check if a sample name was provided. In the second case, the alias is
             // always the name of the sub-dir.
             String alias
-            if (it.parent == input) {
+            if (file_path.parent == input) {
                 // top-level dir
-                alias = margs["sample"] ?: it.parent.name
+                alias = margs["sample"] ?: file_path.parent.name
             } else {
                 // sub-dir
-                alias = it.parent.name
+                alias = file_path.parent.name
             }
-            [create_metamap([alias: alias]), it]
+            [create_metamap([alias: alias]), file_path]
         }
     }
     return ch_watched
@@ -279,7 +273,7 @@ process fastcat {
  *  the argument-parsing to be tailored to a particular ingress function)
  * @return: map of parsed arguments
  */
-Map parse_arguments(Map arguments, Map extra_kwargs=[:]) {
+def parse_arguments(arguments, extra_kwargs=[:]) {
     ArrayList required_args = ["input"]
     Map default_kwargs = [
         "sample": null,
@@ -316,7 +310,7 @@ def get_valid_inputs(Map margs, ArrayList extensions){
     Path input
     try {
         input = file(margs.input, checkIfExists: true)
-    } catch (NoSuchFileException e) {
+    } catch (java.nio.file.NoSuchFileException e) {
         error "Input path $margs.input does not exist."
     }
     // declare resulting input channel
@@ -343,11 +337,11 @@ def get_valid_inputs(Map margs, ArrayList extensions){
             // target files --> find these sub-directories
             ArrayList sub_dirs_with_target_files = file(
                 input.resolve('*'), type: "dir"
-            ).findAll { get_target_files_in_dir(it, extensions) }
+            ).findAll { sub_dir -> get_target_files_in_dir(sub_dir, extensions) }
             // remove directories called 'unclassified' unless otherwise specified
             if (!margs.analyse_unclassified) {
-                sub_dirs_with_target_files = sub_dirs_with_target_files.findAll {
-                    it.baseName != "unclassified"
+                sub_dirs_with_target_files = sub_dirs_with_target_files.findAll { sub_dir ->
+                    sub_dir.baseName != "unclassified"
                 }
             }
             // filter based on sample sheet in case one was provided
@@ -358,9 +352,9 @@ def get_valid_inputs(Map margs, ArrayList extensions){
                 )
                 // get the union of both channels (missing values will be replaced with
                 // `null`)
-                def ch_union = Channel.fromPath(sub_dirs_with_target_files).map {
-                    [it.baseName, it]
-                }.join(ch_sample_sheet.map{[it.barcode, it]}, remainder: true)
+                def ch_union = Channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
+                    [sub_dir.baseName, sub_dir]
+                }.join(ch_sample_sheet.map{ row -> [row.barcode, row]}, remainder: true)
                 // after joining the channels, there are three possible cases:
                 // (i) valid input path and sample sheet entry are both present
                 // (ii) there is a sample sheet entry but no corresponding input dir
@@ -377,8 +371,8 @@ def get_valid_inputs(Map margs, ArrayList extensions){
                 }
             } else {
                 // no sample sheet --> simply emit the sub-dirs with the target files
-                ch_input = Channel.fromPath(sub_dirs_with_target_files).map {
-                    [create_metamap([alias: it.baseName, barcode: it.baseName]), it]
+                ch_input = Channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
+                    [create_metamap([alias: sub_dir.baseName, barcode: sub_dir.baseName]), sub_dir]
                 }
             }
         }
@@ -411,8 +405,8 @@ def get_valid_inputs(Map margs, ArrayList extensions){
  * @param extensions: list of valid extensions for the target file type
  * @return: input type represented as an instance of the `InputType` enum
  */
-InputType determine_input_type(
-    Path input, ArrayList extensions, boolean analyse_unclassified
+def determine_input_type(
+    input, extensions, analyse_unclassified
 ) {
     if (input.isFile()) {
         if (!is_target_file(input, extensions)) {
@@ -429,13 +423,13 @@ InputType determine_input_type(
     // note that these lists can be empty)
     boolean dir_has_target_files = get_target_files_in_dir(input, extensions)
     ArrayList sub_dirs = file(input.resolve('*'), type: "dir")
-    ArrayList sub_dirs_with_target_files = sub_dirs.findAll {
-        get_target_files_in_dir(it, extensions)
-    }.findAll { it.baseName != "unclassified" || analyse_unclassified }
+    ArrayList sub_dirs_with_target_files = sub_dirs.findAll { sub_dir ->
+        get_target_files_in_dir(sub_dir, extensions)
+    }.findAll { sub_dir -> sub_dir.baseName != "unclassified" || analyse_unclassified }
 
     // define string to re-use in error messages below
     String target_files_str = \
-        "target files (ending in ${extensions.collect{'\'' + it + '\''}.join(' / ')})"
+        "target files (ending in ${extensions.collect{ ext -> '\'' + ext + '\''}.join(' / ')})"
 
     // check for target files in the top-level dir; if there are any, make sure there
     // are no sub-directories containing target files
@@ -454,9 +448,9 @@ InputType determine_input_type(
             "or sub-directories containing such files (no more than one layer deep)."
     }
     // we don't allow sub-sub-directories with target files
-    if (sub_dirs.any {
-        ArrayList subsubdirs = file(it.resolve('*'), type: "dir")
-        subsubdirs.any { get_target_files_in_dir(it, extensions) }
+    if (sub_dirs.any { sub_dir ->
+        ArrayList subsubdirs = file(sub_dir.resolve('*'), type: "dir")
+        subsubdirs.any { subsubdir -> get_target_files_in_dir(subsubdir, extensions) }
     }) {
         error "Input directory '$input' cannot contain more " +
             "than one level of sub-directories with $target_files_str."
@@ -473,7 +467,7 @@ InputType determine_input_type(
  * @param arguments: map with input parameters; must contain `alias`
  * @return: map(alias, barcode, type, ...)
  */
-Map create_metamap(Map arguments) {
+def create_metamap(arguments) {
     ArgumentParser parser = new ArgumentParser(
         args: ["alias"],
         kwargs: [
@@ -496,8 +490,8 @@ Map create_metamap(Map arguments) {
  * @param extensions: list of valid extensions for the target file type
  * @return: list of found target files
  */
-ArrayList get_target_files_in_dir(Path dir, ArrayList extensions) {
-    file(dir.resolve("*")).findAll { is_target_file(it, extensions) }
+def get_target_files_in_dir(dir, extensions) {
+    file(dir.resolve("*")).findAll { file_path -> is_target_file(file_path, extensions) }
 }
 
 
@@ -516,10 +510,10 @@ def get_sample_sheet(Path sample_sheet, ArrayList required_sample_types) {
     // in STDOUT. Thus, we use the somewhat clunky construct with `concat` and `last`
     // below. This lets the CSV channel only start to emit once the error checking is
     // done.
-    ch_err = validate_sample_sheet(sample_sheet, required_sample_types).map {
+    ch_err = validate_sample_sheet(sample_sheet, required_sample_types).map { err_msg ->
         // check if there was an error message
-        if (it) error "Invalid sample sheet: ${it}."
-        it
+        if (err_msg) error "Invalid sample sheet: ${err_msg}."
+        err_msg
     }
     // concat the channel holding the path to the sample sheet to `ch_err` and call
     // `.last()` to make sure that the error-checking closure above executes before

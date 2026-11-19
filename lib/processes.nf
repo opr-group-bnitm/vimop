@@ -24,6 +24,7 @@ process lengths_and_qualities {
         tuple val(samplename), path(reads)
     output:
         tuple val(samplename), path("read_len_qual.tsv")
+    script:
     """
     #!/usr/bin/env python
     from Bio import SeqIO
@@ -45,6 +46,7 @@ process trim {
         tuple val(meta), path("demultiplexed.fastq.gz")
     output:
         tuple val(meta), path("trimmed.fastq")
+    script:
     """
     if [[ ${params.trim_length} == 0 ]]
     then
@@ -71,6 +73,7 @@ process classify_centrifuge {
             path("classification_report.tsv"),
             path("classification_kraken.tsv"),
             path("classification.html")
+    script:
     """
     if [[ -s seqs.fastq ]]
     then
@@ -126,6 +129,7 @@ process classify_contigs {
         tuple val(meta), 
         path("classification_report.tsv"),
         path("classification.tsv")
+    script:
     """
     if [[ -s contigs.fasta ]]
     then
@@ -154,6 +158,7 @@ process extract_contig_classification {
         tuple val(meta), path("classification_report.tsv"), path("classification.tsv")
     output:
         tuple val(meta), path("classification_summary_${meta.mapping_target}.csv")
+    script:
     """
     #!/usr/bin/env python
     import pandas as pd
@@ -181,6 +186,7 @@ process no_contig_classification {
         val(meta)
     output:
         tuple val(meta), path("classification_summary_${meta.mapping_target}.csv")
+    script:
     """
     #!/usr/bin/env python
     with open('classification_summary_${meta.mapping_target}.csv', 'w') as f:
@@ -227,6 +233,7 @@ process filter_with_centrifuge {
         tuple val(meta), path('seqs.fastq'), path('classification.tsv'), path('virus_taxids.txt')
     output:
         tuple val(meta), path('centrifuge_filtered.fastq'), path('stats.tsv')
+    script:
     """
     ${seqstatsHeader("stats.tsv")}
     ${seqstatsLine("nofilter", "seqs.fastq", "stats.tsv")}
@@ -250,6 +257,7 @@ process read_stats {
         tuple val(meta), path('seqs.fastq')
     output:
         tuple val(meta), path('seqs.fastq'), path('stats.tsv')
+    script:
     """
     ${seqstatsHeader("stats.tsv")}
     ${seqstatsLine("nofilter", "seqs.fastq", "stats.tsv")}
@@ -266,6 +274,7 @@ process filter_contaminants {
     output:
         tuple val(meta), path('filtered.fastq'), emit: reads
         tuple val(meta.alias), path("clean_stats.tsv"), emit: stats
+    script:
     """
     cp read_stats.tsv stats_tmp.tsv
 
@@ -309,6 +318,7 @@ process filter_virus_target {
         tuple val(meta), path('seqs.fastq'), path(target)
     output:
         tuple val(meta), path('filtered.fastq')
+    script:
     """
     ref_size=\$(stat -Lc%s "${target}")
 
@@ -345,6 +355,7 @@ process assemble_canu {
     output:
         tuple val(meta), path("asm.contigs.fasta"), emit: contigs
         tuple val(meta), path("assembly_stats_${meta.mapping_target}.tsv"), emit: stats
+    script:
     """
     ${task.ext.conda_init ?: ''}
     ${task.ext.conda_activate ?: ''}
@@ -442,6 +453,7 @@ process reassemble_canu {
     output:
         tuple val(meta), path("reassembly.contigs.fasta"), emit: contigs
         tuple val(meta), path("reassembly.stats.tsv"), emit: stats
+    script:
     """
     ${task.ext.conda_init ?: ''}
     ${task.ext.conda_activate ?: ''}
@@ -546,6 +558,7 @@ process no_assembly {
     output:
         tuple val(meta), path("noassembly.contigs.fasta"), emit: contigs
         tuple val(meta), path("noassembly.stats.tsv"), emit: stats
+    script:
     """
     touch noassembly.contigs.fasta
     ${seqstatsHeader("noassembly.stats.tsv")}
@@ -560,6 +573,7 @@ process pop_bubbles {
         tuple val(meta), path('canu_contigs.fasta')
     output:
         tuple val(meta), path('nobubbles.fasta')
+    script:
     """
     #!/usr/bin/env python
     from Bio import SeqIO
@@ -578,6 +592,7 @@ process prepare_blast_search {
         tuple val(meta), path("contigs.fasta")
     output:
         tuple val(meta), path("sorted-contigs.fasta")
+    script:
     """
     seqkit sort --by-length --reverse contigs.fasta \
     | seqkit rename > sorted-contigs.fasta
@@ -592,6 +607,7 @@ process canu_contig_info {
         tuple val(meta), path("contigs.fasta")
     output:
         tuple val(meta), path("contig-info-${meta.mapping_target}.tsv")
+    script:
     """
     #!/usr/bin/env python
     import pandas as pd
@@ -628,6 +644,7 @@ process blast {
         tuple val(meta), path("sorted-contigs.fasta"), path(db_path), val(target)
     output:
         tuple val(meta), path("blast-results.xml")
+    script:
     """
     blastn \
         -num_threads ${task.cpus} \
@@ -647,6 +664,7 @@ process extract_blasthits {
         tuple val(meta), path("blast-results.xml")
     output:
         tuple val(meta), path("blast-hits-${meta.mapping_target}.csv")
+    script:
     """
     #!/usr/bin/env python
     import pandas as pd
@@ -731,6 +749,7 @@ process get_ref_fasta {
         tuple val(ref_id), path(db_path), val(db_name)
     output:
         tuple val(ref_id), path("ref.fasta")
+    script:
     """
     blastdbcmd -entry ${ref_id} -db ${db_path}/${db_name} -out ref.fasta
     """
@@ -744,6 +763,7 @@ process split_custom_ref {
         path fasta_file
     output:
         path("split_refs/*.fasta")
+    script:
     """
     #!/usr/bin/env python
     import os
@@ -773,6 +793,7 @@ process map_to_ref {
         tuple val(meta), path("trimmed.fastq"), path("ref.fasta")
     output:
         tuple val(meta), path("ref.fasta"), path("sorted.bam"), path("sorted.bam.bai")
+    script:
     """
     minimap2 -ax map-ont ref.fasta trimmed.fastq \
         -t ${task.cpus} --secondary=no \
@@ -801,6 +822,7 @@ process map_to_sv_consensus {
             path("sv_consensus.fasta"),
             path("mapped_to_sv_consensus.bam"),
             path("mapped_to_sv_consensus.bam.bai")
+    script:
     """
     set +e
     variant_count=\$(grep -c -v '^#' structural_variants.vcf)
@@ -832,6 +854,7 @@ process calc_coverage {
         tuple val(meta), path("sorted.bam"), path("sorted.bam.bai")
     output:
         tuple val(meta), path("coverage.txt")
+    script:
     """
     samtools depth -aa -J sorted.bam > coverage.txt
     """
@@ -845,6 +868,7 @@ process simplify_reference_fasta {
         tuple val(meta), path("ref.fasta")
     output:
         tuple val(meta), path("simple_ref.fasta")
+    script:
     """
     #!/usr/bin/env python
     from Bio import SeqIO
@@ -868,6 +892,7 @@ process subsample_alignments {
         tuple val(meta), path("ref.fasta"), path("in.bam"), path("in.bam.bai")
     output:
         tuple val(meta), path("ref.fasta"), path("out.bam"), path("out.bam.bai")
+    script:
     """
     set -euo pipefail
 
@@ -907,6 +932,7 @@ process sniffles {
     output:
         tuple val(meta),
             path("sv.filtered.vcf")
+    script:
     """
     if [[ \$(samtools view mapped_to_ref.bam | wc -l) -ne 0 ]]
     then
@@ -949,6 +975,7 @@ process cutesv {
     output:
         tuple val(meta),
             path("sv.filtered.vcf")
+    script:
     """
     if [[ \$(samtools view mapped_to_ref.bam | wc -l) -ne 0 ]]
     then
@@ -994,6 +1021,7 @@ process structural_variant_consensus {
     output:
         tuple val(meta),
             path("sv_consensus.fasta")
+    script:
     """
     if [[ \$(bcftools view -H sv.filtered.vcf | wc -l) -ne 0 ]]
     then
@@ -1065,6 +1093,7 @@ process medaka_variant_consensus {
             path("trimmed.fastq")
     output:
         tuple val(meta), path("consensus.${meta.consensus_target}.fasta")
+    script:
     """
     medaka_cmd="medaka inference sorted.bam consensus.hdf --threads ${task.cpus}"
 
@@ -1123,6 +1152,7 @@ process simple_consensus {
             path("sorted.bam.bai")
     output:
         tuple val(meta), path("consensus.${meta.consensus_target}.fasta")
+    script:
     """
     ${simpleConsensus(meta.alias)}
     mv consensus.fasta consensus.${meta.consensus_target}.fasta
@@ -1142,6 +1172,7 @@ process auto_consensus {
             path("trimmed.fastq")
     output:
         tuple val(meta), path("consensus.${meta.consensus_target}.fasta")
+    script:
     """
     medaka_cmd="medaka inference sorted.bam consensus.hdf --threads ${task.cpus}"
 
@@ -1172,6 +1203,7 @@ process compute_mapping_stats {
         path('depth.txt')
     output:
         tuple val(meta), path("mapping_stats.csv")
+    script:
     """
     ref_id=\$(head -n 1 ref.fasta | sed 's/>//' | awk '{print \$1}')
     ref_len=\$(seqtk size ref.fasta | awk '{print \$2}')
@@ -1191,6 +1223,7 @@ process empty_tsv {
         val(samplename)
     output:
         tuple val(samplename), path('empty.tsv')
+    script:
     """
     touch empty.tsv
     """
@@ -1204,6 +1237,7 @@ process concat_mapping_stats {
         tuple val(samplename), path("collected_stats_*.tsv")
     output:
         tuple val(samplename), path('all_stats.tsv')
+    script:
     """
     echo "Reference\tReferenceLength\tNumberOfMappedReads\tNCount\tConsensusLength\tAverageCoverage" > all_stats.tsv
     cat collected_stats_*.tsv >> all_stats.tsv
@@ -1216,6 +1250,7 @@ process empty_fasta {
     cpus 1
     output:
         path('empty.fasta')
+    script:
     """
     touch empty.fasta
     """
@@ -1229,6 +1264,7 @@ process collect_reference_info {
         path('ref_*.fasta')
     output:
         path('reference_info.tsv')
+    script:
     """
     #!/usr/bin/env python
     import pandas as pd
@@ -1297,6 +1333,7 @@ process sample_report {
         tuple val(samplename), path('stats_reads.tsv'), emit: read_stats
         tuple val(samplename), path('stats_contigs.tsv'), emit: contig_stats
         tuple val(samplename), path('stats_consensus.tsv'), emit: consensus_stats
+    script:
     """
     export MPLCONFIGDIR=\$(pwd)/.matplotlib
     mkdir -p \$MPLCONFIGDIR
@@ -1352,6 +1389,7 @@ process get_best_consensus_files {
         tuple val(samplename), path('consensus_stats.tsv'), path('cons_*.fasta')
     output:
         tuple val(samplename), path('out')
+    script:
     """
     get_curated_consensus_genomes.py \
         --consensus-stats consensus_stats.tsv \
@@ -1375,6 +1413,7 @@ process output {
         tuple path(fname_in), val(dirname), val(fname_out)
     output:
         path(fname_in)
+    script:
     """
     """
 }

@@ -24,6 +24,7 @@ process build_contaminants_db {
         path("contaminant_dir")
     output:
         path("contaminants")
+    script:
     """
     set -euo pipefail
     shopt -s nullglob extglob
@@ -78,6 +79,7 @@ process build_virus_db {
         tuple path("virus_input_config.yaml"), path("ALL.fasta")
     output:
         path("virus")
+    script:
     """
     set -euo pipefail
 
@@ -112,6 +114,7 @@ process download_taxdump {
     maxRetries 3
     output:
         path("taxdump.tar.gz") 
+    script:
     """
     set -euo pipefail
     wget ${params.custom_db_centrifuge_taxonomy_url}
@@ -126,6 +129,7 @@ process seqid_to_taxid {
         tuple path("sequences.fasta"), path("taxdump.tar.gz")
     output:
         tuple path("virus_taxids.txt"), path("seqid2taxid.map"), path("nodes.dmp"), path("names.dmp")
+    script:
     """
     set -euo pipefail
 
@@ -184,6 +188,7 @@ process build_centrifuge_index {
             path("names.dmp")
     output:
         path("centrifuge")
+    script:
     """
     set -euo pipefail
 
@@ -238,6 +243,7 @@ process custom_data_base_transfer {
         path(db)
     output:
         path(db)
+    script:
     """
     """
 }

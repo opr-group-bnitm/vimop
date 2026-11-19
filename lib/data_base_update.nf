@@ -13,6 +13,7 @@ process db_update_get_config {
     cpus 1
     output:
         path("db.yaml")
+    script:
     """
     wget -o download_config.log -O db.yaml ${params.download_db_config_url}
     """
@@ -31,6 +32,7 @@ process check_download_necessary {
         tuple val(do_update), val(expected_checksum), path("db_path")
     output:
         path("dummy.txt"), optional: true
+    script:
     """
     if [ "${do_update}" == "true" ]
     then
@@ -62,6 +64,7 @@ process download_parts {
         val(file_config)
     output:
         path("${file_config.name}")
+    script:
     """
     wget -o dl_${file_config.name}.log -O ${file_config.name} ${file_config.url}
 
@@ -86,6 +89,7 @@ process merge_parts_and_extract {
         tuple val(db_config), path(parts), val(db_name)
     output:
         path("${db_name}")
+    script:
     """
     # merge the files
     ls ${parts.join(' ')} | sort | xargs cat > merged.tar.xz
@@ -163,6 +167,7 @@ process data_base_transfer {
         path(db)
     output:
         path(db)
+    script:
     """
     """
 }

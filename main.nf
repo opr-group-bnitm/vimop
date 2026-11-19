@@ -124,14 +124,14 @@ workflow pipeline {
         to_assemble_targeted = mapped_to_virus_target
         | map { meta, reads -> [meta, reads, params.nocontigs_enable_read_usage] }
 
-        if (params.assemble_notarget) {
+        if (checkFlag(params.assemble_notarget)) {
             to_assemble_notarget = cleaned.reads
             | map { meta, reads -> [meta + ["mapping_target": "no-target"], reads, false] }
         } else {
             to_assemble_notarget = channel.empty()
         }
 
-        if (params.assemble_notarget || db_config.virusTargets.size() > 0) {
+        if (checkFlag(params.assemble_notarget) || db_config.virusTargets.size() > 0) {
             first_assemblies = to_assemble_notarget
             | mix(to_assemble_targeted)
             | assemble_canu
@@ -258,7 +258,7 @@ workflow pipeline {
         | map { meta, _ref, bam, bai -> [meta, bam, bai]}
         | calc_coverage
 
-        if(params.sv_do_call_structural_variants) {
+        if(checkFlag(params.sv_do_call_structural_variants)) {
 
             subsampled_mapped_to_ref = mapped_to_ref
             | subsample_alignments
@@ -364,7 +364,7 @@ workflow pipeline {
             classification | map { meta, classification_tsv, _report, _kraken, _html -> [classification_tsv, "$meta.alias/classification", "classification_${meta.alias}.tsv"] },
             classification | map { meta, _classification_tsv, report, _kraken, _html -> [report, "$meta.alias/classification", "classification_report_${meta.alias}.tsv"] },
             classification | map { meta, _classification_tsv, _report, kraken, _html -> [kraken, "$meta.alias/classification", "classification_kraken_${meta.alias}.tsv"] },
-            classification | filter { params.output_krona_plot } | map { meta, _classification_tsv, _report, _kraken, html -> [html, "$meta.alias/classification", "classification_${meta.alias}.html"] },
+            classification | filter { checkFlag(params.output_krona_plot) } | map { meta, _classification_tsv, _report, _kraken, html -> [html, "$meta.alias/classification", "classification_${meta.alias}.html"] },
             // contigs
             contigs | map { meta, contigs_fasta -> [contigs_fasta, "$meta.alias/assembly", "${meta.mapping_target}.contigs.fasta"] },
             // consensus
@@ -382,7 +382,7 @@ workflow pipeline {
             sample_results.contig_stats | map { alias, contig_stats -> [contig_stats, "$alias/tables", "contigs.tsv"] },
             sample_results.consensus_stats | map { alias, consensus_stats -> [consensus_stats, "$alias/tables", "consensus.tsv"] },
             // advanced output
-            cleaned.reads | filter { params.output_cleaned_reads } | map { meta, reads -> [reads, "$meta.alias/clean", null] }
+            cleaned.reads | filter { checkFlag(params.output_cleaned_reads) } | map { meta, reads -> [reads, "$meta.alias/clean", null] }
         )
 
     emit:
@@ -458,28 +458,28 @@ workflow {
     // check the system requirements before starting the workflow
     if (doUpdate) {
         new SystemRequirements(true).checkSystemRequirements(
-            params.download_db_min_disk_space_work_gb,
-            params.download_db_min_disk_space_home_gb,
-            params.download_db_min_ram_gb,
-            params.download_db_min_cpus,
+            params.download_db_min_disk_space_work_gb as long,
+            params.download_db_min_disk_space_home_gb as long,
+            params.download_db_min_ram_gb as long,
+            params.download_db_min_cpus as int,
             params.database_defaults.base,
             workflow.workDir.toString()
         )
     } else if (doBuildCustomDB) {
         new SystemRequirements(true).checkSystemRequirements(
-            params.custom_db_min_disk_space_work_gb,
-            params.custom_db_min_disk_space_out_gb,
-            params.custom_db_min_ram_gb,
-            params.custom_db_min_cpus,
+            params.custom_db_min_disk_space_work_gb as long,
+            params.custom_db_min_disk_space_out_gb as long,
+            params.custom_db_min_ram_gb as long,
+            params.custom_db_min_cpus as int,
             params.out_dir,
             workflow.workDir.toString()
         )
     } else {
         new SystemRequirements(true).checkSystemRequirements(
-            params.min_disk_space_work_gb,
-            params.min_disk_space_out_gb,
-            params.min_ram_gb,
-            params.min_cpus,
+            params.min_disk_space_work_gb as long,
+            params.min_disk_space_out_gb as long,
+            params.min_ram_gb as long,
+            params.min_cpus as int,
             params.out_dir,
             workflow.workDir.toString()
         )

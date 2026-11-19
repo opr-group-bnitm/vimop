@@ -319,7 +319,7 @@ process filter_virus_target {
     """
     ref_size=\$(stat -Lc%s "${target}")
 
-    if [[ "\$ref_size" -gt ${params.target_filter_minimap_index_split_thresh * 1024 * 1024} ]]
+    if [[ "\$ref_size" -gt ${(params.target_filter_minimap_index_split_thresh as int) * 1024 * 1024} ]]
     then
         echo "Large reference — using split index"
         minimap2 -I 2G -d map_index.mmi --split-prefix map_index "${target}"

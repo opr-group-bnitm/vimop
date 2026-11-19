@@ -2,10 +2,6 @@
 // This file is part of ViMOP and is licensed under the MIT License.
 // See the LICENSE file in the root of this repository for full license details.
 
-import groovy.json.JsonBuilder
-import DatabaseInput
-import SystemRequirements
-
 nextflow.enable.dsl = 2
 
 
@@ -451,57 +447,60 @@ workflow db_update {
 
 
 // entrypoint workflow
-WorkflowMain.initialise(workflow, params, log)
-
-def doUpdate = (
-    params.download_db_all
-    || params.download_db_contamination
-    || params.download_db_virus
-    || params.download_db_centrifuge
-)
-
-def doBuildCustomDB = checkFlag(params.custom_db_do_build)
-
-if (!doBuildCustomDB && !doUpdate && !params.fastq) {
-    System.err.println("No fastqs provided! Exit.")
-    System.exit(1)
-} else if ([doUpdate, !!params.fastq, doBuildCustomDB].count { it } > 1) {
-    System.err.println("Either download data base, build custom data base or analyse.")
-    System.exit(1)
-}
-
-// check the system requirements before starting the workflow
-if (doUpdate) {
-    new SystemRequirements(true).checkSystemRequirements(
-        params.download_db_min_disk_space_work_gb,
-        params.download_db_min_disk_space_home_gb,
-        params.download_db_min_ram_gb,
-        params.download_db_min_cpus,
-        params.database_defaults.base,
-        session.workDir.toString()
-    )
-} else if (doBuildCustomDB) {
-        new SystemRequirements(true).checkSystemRequirements(
-        params.custom_db_min_disk_space_work_gb,
-        params.custom_db_min_disk_space_out_gb,
-        params.custom_db_min_ram_gb,
-        params.custom_db_min_cpus,
-        params.out_dir,
-        session.workDir.toString()
-    )
-} else {
-    new SystemRequirements(true).checkSystemRequirements(
-        params.min_disk_space_work_gb,
-        params.min_disk_space_out_gb,
-        params.min_ram_gb,
-        params.min_cpus,
-        params.out_dir,
-        session.workDir.toString()
-    )
-}
-
-
 workflow {
+    WorkflowMain.initialise(workflow, params, log)
+
+    def doUpdate = (
+        params.download_db_all
+        || params.download_db_contamination
+        || params.download_db_virus
+        || params.download_db_centrifuge
+    )
+
+    def doBuildCustomDB = checkFlag(params.custom_db_do_build)
+
+    if (!doBuildCustomDB && !doUpdate && !params.fastq) {
+        error "No fastqs provided! Exit."
+    } else if ([doUpdate, !!params.fastq, doBuildCustomDB].count { it } > 1) {
+        error "Either download data base, build custom data base or analyse."
+    }
+
+    // check the system requirements before starting the workflow
+    if (doUpdate) {
+        new SystemRequirements(true).checkSystemRequirements(
+            params.download_db_min_disk_space_work_gb,
+            params.download_db_min_disk_space_home_gb,
+            params.download_db_min_ram_gb,
+            params.download_db_min_cpus,
+            params.database_defaults.base,
+            workflow.workDir.toString()
+        )
+    } else if (doBuildCustomDB) {
+        new SystemRequirements(true).checkSystemRequirements(
+            params.custom_db_min_disk_space_work_gb,
+            params.custom_db_min_disk_space_out_gb,
+            params.custom_db_min_ram_gb,
+            params.custom_db_min_cpus,
+            params.out_dir,
+            workflow.workDir.toString()
+        )
+    } else {
+        new SystemRequirements(true).checkSystemRequirements(
+            params.min_disk_space_work_gb,
+            params.min_disk_space_out_gb,
+            params.min_ram_gb,
+            params.min_cpus,
+            params.out_dir,
+            workflow.workDir.toString()
+        )
+    }
+
+    workflow.onComplete = {
+        def outputFile = new File("${params.out_dir}/params.json")
+        def json = new groovy.json.JsonBuilder(params)
+        outputFile.withWriter('UTF-8') { writer -> writer.write(json.toPrettyString()) }
+    }
+
     if(doUpdate) {
         db_update()
     } else if (doBuildCustomDB) {
@@ -519,15 +518,4 @@ workflow {
         | flatMap
         | output
     }
-}
-
-
-workflow.onComplete {
-    File outputFile = new File("${params.out_dir}/params.json")
-    def json = new JsonBuilder(params)
-    outputFile.withWriter('UTF-8') { writer -> writer.write(json.toPrettyString()) }
-}
-
-
-workflow.onError {
 }

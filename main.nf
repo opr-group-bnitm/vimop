@@ -406,18 +406,11 @@ def checkFlag(value) {
 }
 
 
-params.download_db_all = checkFlag(params.download_db_all)
-params.download_db_contamination = checkFlag(params.download_db_contamination)
-params.download_db_virus = checkFlag(params.download_db_virus)
-params.download_db_centrifuge = checkFlag(params.download_db_centrifuge)
-params.download_db_update_existing = checkFlag(params.download_db_update_existing)
-
-
 workflow db_update {
     main:
-        def doUpdateContaminants = params.download_db_all || params.download_db_contamination
-        def doUpdateVirus = params.download_db_all || params.download_db_virus
-        def doUpdateCentrifuge = params.download_db_all || params.download_db_centrifuge
+        def doUpdateContaminants = checkFlag(params.download_db_all) || checkFlag(params.download_db_contamination)
+        def doUpdateVirus = checkFlag(params.download_db_all) || checkFlag(params.download_db_virus)
+        def doUpdateCentrifuge = checkFlag(params.download_db_all) || checkFlag(params.download_db_centrifuge)
 
         download_config = db_update_get_config()
 
@@ -451,10 +444,10 @@ workflow {
     WorkflowMain.initialise(workflow, params, log)
 
     def doUpdate = (
-        params.download_db_all
-        || params.download_db_contamination
-        || params.download_db_virus
-        || params.download_db_centrifuge
+        checkFlag(params.download_db_all)
+        || checkFlag(params.download_db_contamination)
+        || checkFlag(params.download_db_virus)
+        || checkFlag(params.download_db_centrifuge)
     )
 
     def doBuildCustomDB = checkFlag(params.custom_db_do_build)

@@ -122,7 +122,7 @@ EOF
 process classify_contigs {
     label "centrifuge"
     cpus { minCpus(12) }
-    memory = { minRAM(28) }
+    memory { minRAM(28) }
     input:
         tuple val(meta), path("contigs.fasta"), path(db_path), val(target_db)
     output:

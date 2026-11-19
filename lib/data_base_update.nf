@@ -55,7 +55,6 @@ process check_download_necessary {
 
 
 process download_parts {
-    maxParallel = 1
     label "download"
     errorStrategy "retry"
     maxRetries 3

@@ -12,7 +12,7 @@ def minCpus(int requestedCpus) {
 
 
 def minRAM(int requestesRAM) {
-    ram = Math.min(requestesRAM, params.min_ram_gb as int)
+    def ram = Math.min(requestesRAM, params.min_ram_gb as int)
     return "${ram} GB"
 }
 

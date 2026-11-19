@@ -145,12 +145,12 @@ workflow watch_path {
     }
     // get existing target files first (look for relevant files in the top-level dir and
     // all sub-dirs)
-    ch_existing_input = Channel.fromPath(input)
-    | concat(Channel.fromPath("$input/*", type: 'dir'))
+    ch_existing_input = channel.fromPath(input)
+    | concat(channel.fromPath("$input/*", type: 'dir'))
     | map { dir -> get_target_files_in_dir(dir, extensions) }
     | flatten
     // now get channel with files found by `watchPath`
-    ch_watched = Channel.watchPath("$input/**").until { file_path -> file_path.name.startsWith('STOP') }
+    ch_watched = channel.watchPath("$input/**").until { file_path -> file_path.name.startsWith('STOP') }
     // only keep target files
     | filter { file_path -> is_target_file(file_path, extensions) }
     // merge the channels
@@ -329,7 +329,7 @@ workflow get_valid_inputs {
     Path input
     try {
         input = file(margs.input, checkIfExists: true)
-    } catch (java.nio.file.NoSuchFileException e) {
+    } catch (java.nio.file.NoSuchFileException _e) {
         error "Input path $margs.input does not exist."
     }
     // declare resulting input channel
@@ -345,11 +345,11 @@ workflow get_valid_inputs {
         )
         // handle case of `input` being a single file
         if (input_type == InputType.SingleFile) {
-            ch_input = Channel.of(
+            ch_input = channel.of(
                 [create_metamap([alias: margs["sample"] ?: input.simpleName]), input])
         } else if (input_type == InputType.TopLevelDir) {
             // input is a directory containing target files
-            ch_input = Channel.of(
+            ch_input = channel.of(
                 [create_metamap([alias: margs["sample"] ?: input.baseName]), input])
         } else {
             // input is a directory with sub-directories (e.g. barcodes) containing
@@ -371,7 +371,7 @@ workflow get_valid_inputs {
                 )
                 // get the union of both channels (missing values will be replaced with
                 // `null`)
-                ch_union = Channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
+                ch_union = channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
                     [sub_dir.baseName, sub_dir]
                 }.join(ch_sample_sheet.map{ row -> [row.barcode, row]}, remainder: true)
                 // after joining the channels, there are three possible cases:
@@ -390,7 +390,7 @@ workflow get_valid_inputs {
                 }
             } else {
                 // no sample sheet --> simply emit the sub-dirs with the target files
-                ch_input = Channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
+                ch_input = channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
                     [create_metamap([alias: sub_dir.baseName, barcode: sub_dir.baseName]), sub_dir]
                 }
             }
@@ -408,7 +408,7 @@ workflow get_valid_inputs {
             }
         }
         [meta, path]
-    } .branch { meta, path ->
+    } .branch { _meta, path ->
         missing: !path
         files: path.isFile()
         dirs: path.isDirectory()
@@ -546,7 +546,7 @@ workflow get_sample_sheet {
     // concat the channel holding the path to the sample sheet to `ch_err` and call
     // `.last()` to make sure that the error-checking closure above executes before
     // emitting values from the CSV
-    ch_rows = ch_err.concat(Channel.fromPath(sample_sheet)).last().splitCsv(
+    ch_rows = ch_err.concat(channel.fromPath(sample_sheet)).last().splitCsv(
         header: true, quote: '"'
     )
 

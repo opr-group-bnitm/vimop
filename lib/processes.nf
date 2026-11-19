@@ -3,9 +3,6 @@
 // See the LICENSE file in the root of this repository for full license details.
 
 
-nextflow.enable.dsl = 2
-
-
 def minCpus(int requestedCpus) {
     return Math.min(requestedCpus, params.min_cpus as int)
 }

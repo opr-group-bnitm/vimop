@@ -3,9 +3,6 @@
 // See the LICENSE file in the root of this repository for full license details.
 
 
-nextflow.enable.dsl = 2
-
-
 process db_update_get_config {
     label "general"
     errorStrategy "retry"
@@ -135,7 +132,7 @@ workflow update_data_base {
         | map { sub_db_config -> [do_update, sub_db_config.checksum_directory, "${params.database_defaults.base}/${database_name}"] }
         | check_download_necessary
         | combine(db_config)
-        | map { dummy, sub_db_config -> sub_db_config.files }
+        | map { _dummy, sub_db_config -> sub_db_config.files }
         | flatten
         | download_parts
 

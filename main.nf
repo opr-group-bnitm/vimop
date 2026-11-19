@@ -2,9 +2,6 @@
 // This file is part of ViMOP and is licensed under the MIT License.
 // See the LICENSE file in the root of this repository for full license details.
 
-nextflow.enable.dsl = 2
-
-
 include { fastq_ingress } from './lib/ingress'
 
 include {
@@ -72,11 +69,11 @@ workflow pipeline {
         db_config
     main:
         samplenames = samples
-        | map { meta, reads, stats -> meta.alias }
+        | map { meta, _reads, _stats -> meta.alias }
 
         // trimming
         trimmed = samples
-        | map { meta, reads, stats -> [meta, reads] }
+        | map { meta, reads, _stats -> [meta, reads] }
         | trim
         | map { meta, reads -> [meta + ["trimmed_reads": reads], reads] }
 
@@ -87,9 +84,9 @@ workflow pipeline {
             | classify_centrifuge
 
             kraken_style_reports = classification
-            | map { meta, classification_tsv, report, kraken, html -> [meta.alias, kraken] }
+            | map { meta, _classification_tsv, _report, kraken, _html -> [meta.alias, kraken] }
         } else {
-            classification = Channel.empty()
+            classification = channel.empty()
 
             kraken_style_reports = samplenames
             | empty_kraken_style_report
@@ -97,7 +94,7 @@ workflow pipeline {
 
         if(db_config.doFilterWithCentrifuge) {
             to_clean = classification
-            | map { meta, classification_tsv, report, kraken, html -> [meta, meta.trimmed_reads, classification_tsv, db_config.virusTaxIDFile] }
+            | map { meta, classification_tsv, _report, _kraken, _html -> [meta, meta.trimmed_reads, classification_tsv, db_config.virusTaxIDFile] }
             | filter_with_centrifuge
         } else {
             to_clean = trimmed
@@ -120,7 +117,7 @@ workflow pipeline {
 
         // mapping reads to given virus targets to filter them
         mapped_to_virus_target = cleaned.reads
-        | combine(Channel.from(db_config.virusTargets))
+        | combine(channel.fromList(db_config.virusTargets))
         | map{ meta, reads, target -> [meta + ["mapping_target": target.target], reads, target.path] }
         | filter_virus_target
 
@@ -131,7 +128,7 @@ workflow pipeline {
             to_assemble_notarget = cleaned.reads
             | map { meta, reads -> [meta + ["mapping_target": "no-target"], reads, false] }
         } else {
-            to_assemble_notarget = Channel.empty()
+            to_assemble_notarget = channel.empty()
         }
 
         if (params.assemble_notarget || db_config.virusTargets.size() > 0) {
@@ -140,7 +137,7 @@ workflow pipeline {
             | assemble_canu
         } else {
             first_assemblies = samples
-            | map { meta, reads, stats -> meta + ["mapping_target": "no-assembly"] }
+            | map { meta, _reads, _stats -> meta + ["mapping_target": "no-assembly"] }
             | no_assembly
         }
 
@@ -166,7 +163,7 @@ workflow pipeline {
             | extract_contig_classification
         } else {
             contig_classification = contigs
-            | map {meta, contigs_fasta -> meta}
+            | map {meta, _contigs_fasta -> meta}
             | no_contig_classification
         }
 
@@ -199,20 +196,20 @@ workflow pipeline {
                 .drop(1)
                 .collect { line -> tuple(meta.alias, meta.mapping_target, line.split(',')[1]) } 
         }
-        | map { samplename, target_filter, blast_hit -> [samplename, blast_hit] }
+        | map { samplename, _target_filter, blast_hit -> [samplename, blast_hit] }
         | unique
 
         // Get BLAST-derived reference sequences
         ref_seqs = sample_ref
-        | map { samplename, ref_id -> ref_id }
+        | map { _samplename, ref_id -> ref_id }
         | unique
         | map { ref_id -> [ref_id, db_config.blastDir, db_config.blastPrefix] }
         | get_ref_fasta
 
         // Split custom_ref_fasta if provided
         custom_ref_fasta = params.custom_ref_fasta ?
-                            Channel.fromPath(params.custom_ref_fasta) :
-                            Channel.empty()
+                            channel.fromPath(params.custom_ref_fasta) :
+                            channel.empty()
 
         custom_ref_files = custom_ref_fasta
         | split_custom_ref
@@ -224,11 +221,11 @@ workflow pipeline {
 
         // Extract sample names
         samplenames = samples
-        | map{ meta, reads, stats -> meta.alias }
+        | map{ meta, _reads, _stats -> meta.alias }
 
         // Extract custom_refs
         custom_refs = custom_ref_files
-        | map { ref_id, fasta -> ref_id }
+        | map { ref_id, _fasta -> ref_id }
 
         // combine each sample with every custom reference
         custom_sample_refs = samplenames
@@ -246,11 +243,11 @@ workflow pipeline {
 
         reads_and_ref = extended_sample_ref
         | combine(simplified_ref_seqs)
-        | filter { samplename, ref_id_1, ref_id_2, ref_seq -> ref_id_1 == ref_id_2 }
-        | map { samplename, ref_id_1, ref_id_2, ref_seq -> [samplename, ref_id_1, ref_seq] }
+        | filter { _samplename, ref_id_1, ref_id_2, _ref_seq -> ref_id_1 == ref_id_2 }
+        | map { samplename, ref_id_1, _ref_id_2, ref_seq -> [samplename, ref_id_1, ref_seq] }
         | combine(trimmed)
-        | filter { samplename, ref_id, ref_seq, meta, reads -> samplename == meta.alias }
-        | map { samplename, ref_id, ref_seq, meta, reads -> [meta + ["consensus_target": ref_id], reads, ref_seq] }
+        | filter { samplename, _ref_id, _ref_seq, meta, _reads -> samplename == meta.alias }
+        | map { _samplename, ref_id, ref_seq, meta, reads -> [meta + ["consensus_target": ref_id], reads, ref_seq] }
 
         // Map reads against references for final consensus generation
         mapped_to_ref = reads_and_ref
@@ -258,7 +255,7 @@ workflow pipeline {
         | map { meta, ref, bam, bai -> [meta + ["ref": ref, "bam_to_ref": bam, "bai_to_ref": bai], ref, bam, bai]}
 
         coverage = mapped_to_ref
-        | map { meta, ref, bam, bai -> [meta, bam, bai]}
+        | map { meta, _ref, bam, bai -> [meta, bam, bai]}
         | calc_coverage
 
         if(params.sv_do_call_structural_variants) {
@@ -284,7 +281,7 @@ workflow pipeline {
             | map { meta, sv_consensus_fasta -> [meta, meta.trimmed_reads, meta.structural_variants, sv_consensus_fasta, meta.bam_to_ref, meta.bai_to_ref] }
             | map_to_sv_consensus
         } else {
-            structural_variants = Channel.empty()
+            structural_variants = channel.empty()
 
             mapped_to_sv_consensus = mapped_to_ref
         }
@@ -307,7 +304,7 @@ workflow pipeline {
         }
 
         reference_info = empty_fasta
-        | mix(extended_ref_seqs | map {refid, refseq -> refseq})
+        | mix(extended_ref_seqs | map {_refid, refseq -> refseq})
         | collect
         | collect_reference_info
 
@@ -316,7 +313,7 @@ workflow pipeline {
         | map {meta, ref, bam, bai -> [meta.alias, meta.consensus_target, meta, ref, bam, bai]}
         | join(consensi | map {meta, cons -> [meta.alias, meta.consensus_target, cons]}, by: [0, 1])
         | join(coverage | map {meta, cov -> [meta.alias, meta.consensus_target, cov]}, by: [0, 1])
-        | map {samplename, target_name, meta, ref, bam, bai, cons, cov -> [meta, ref, bam, bai, cons, cov]}
+        | map {_samplename, _target_name, meta, ref, bam, bai, cons, cov -> [meta, ref, bam, bai, cons, cov]}
         | compute_mapping_stats
         | map {meta, stats -> [meta.alias, stats]}
 
@@ -346,9 +343,9 @@ workflow pipeline {
         | join(lenquals_trim, by: 0)
         | join(lenquals_clean, by: 0)
         | join(kraken_style_reports, by:0)
-        | combine(Channel.of(db_config.virusConfigFileName))
-        | combine(Channel.of(db_config.contaminationConfigFileName))
-        | combine(Channel.of(db_config.classificationConfigFileName))
+        | combine(channel.of(db_config.virusConfigFileName))
+        | combine(channel.of(db_config.contaminationConfigFileName))
+        | combine(channel.of(db_config.classificationConfigFileName))
         | combine(reference_info)
         | sample_report
 
@@ -361,19 +358,19 @@ workflow pipeline {
         | get_best_consensus_files
 
         // define output
-        ch_to_publish = Channel.empty()
+        ch_to_publish = channel.empty()
         | mix(
             // centrifuge classification
-            classification | map { meta, classification_tsv, report, kraken, html -> [classification_tsv, "$meta.alias/classification", "classification_${meta.alias}.tsv"] },
-            classification | map { meta, classification_tsv, report, kraken, html -> [report, "$meta.alias/classification", "classification_report_${meta.alias}.tsv"] },
-            classification | map { meta, classification_tsv, report, kraken, html -> [kraken, "$meta.alias/classification", "classification_kraken_${meta.alias}.tsv"] },
-            classification | filter { params.output_krona_plot } | map { meta, classification_tsv, report, kraken, html -> [html, "$meta.alias/classification", "classification_${meta.alias}.html"] },
+            classification | map { meta, classification_tsv, _report, _kraken, _html -> [classification_tsv, "$meta.alias/classification", "classification_${meta.alias}.tsv"] },
+            classification | map { meta, _classification_tsv, report, _kraken, _html -> [report, "$meta.alias/classification", "classification_report_${meta.alias}.tsv"] },
+            classification | map { meta, _classification_tsv, _report, kraken, _html -> [kraken, "$meta.alias/classification", "classification_kraken_${meta.alias}.tsv"] },
+            classification | filter { params.output_krona_plot } | map { meta, _classification_tsv, _report, _kraken, html -> [html, "$meta.alias/classification", "classification_${meta.alias}.html"] },
             // contigs
             contigs | map { meta, contigs_fasta -> [contigs_fasta, "$meta.alias/assembly", "${meta.mapping_target}.contigs.fasta"] },
             // consensus
-            mapped_to_ref | map { meta, ref, bam, bai -> [ref, "$meta.alias/consensus", "${meta.consensus_target}.reference.fasta"] },
-            mapped_to_ref | map { meta, ref, bam, bai -> [bam, "$meta.alias/consensus", "${meta.consensus_target}.reads.bam"] },
-            mapped_to_ref | map { meta, ref, bam, bai -> [bai, "$meta.alias/consensus", "${meta.consensus_target}.reads.bam.bai"] },
+            mapped_to_ref | map { meta, ref, _bam, _bai -> [ref, "$meta.alias/consensus", "${meta.consensus_target}.reference.fasta"] },
+            mapped_to_ref | map { meta, _ref, bam, _bai -> [bam, "$meta.alias/consensus", "${meta.consensus_target}.reads.bam"] },
+            mapped_to_ref | map { meta, _ref, _bam, bai -> [bai, "$meta.alias/consensus", "${meta.consensus_target}.reads.bam.bai"] },
             structural_variants | map { meta, variants -> [variants, "$meta.alias/consensus", "${meta.consensus_target}.structural_variants.vcf"] },
             consensi | map { meta, consensus -> [consensus, "$meta.alias/consensus", "${meta.consensus_target}.consensus.fasta"] },
             coverage | map { meta, coverage_txt -> [coverage_txt, "$meta.alias/consensus", "${meta.consensus_target}.depth.txt"] },
@@ -421,7 +418,7 @@ workflow db_update {
         db_centrifuge = update_centrifuge(config_dict, 'centrifuge', doUpdateCentrifuge)
         db_contaminants = update_contaminants(config_dict, 'contaminants', doUpdateContaminants)
 
-        Channel.empty()
+        channel.empty()
         | mix(
             db_virus.database,
             db_centrifuge.database,
@@ -454,7 +451,7 @@ workflow {
 
     if (!doBuildCustomDB && !doUpdate && !params.fastq) {
         error "No fastqs provided! Exit."
-    } else if ([doUpdate, !!params.fastq, doBuildCustomDB].count { it } > 1) {
+    } else if ([doUpdate, !!params.fastq, doBuildCustomDB].count { flag -> flag } > 1) {
         error "Either download data base, build custom data base or analyse."
     }
 

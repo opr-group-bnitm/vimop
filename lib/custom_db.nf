@@ -3,9 +3,6 @@
 // See the LICENSE file in the root of this repository for full license details.
 
 
-nextflow.enable.dsl = 2
-
-
 def minCpus(int requestedCpus) {
     return Math.min(requestedCpus, params.custom_db_min_cpus as int)
 }
@@ -254,14 +251,14 @@ workflow custom_data_base {
         if(params.custom_db_contaminants_input_path) {
             contaminants_db = build_contaminants_db(params.custom_db_contaminants_input_path)
         } else {
-            contaminants_db = Channel.empty()
+            contaminants_db = channel.empty()
         }
 
         if(params.custom_db_virus_yaml && params.custom_db_virus_fasta){
-            virus_db = Channel.of([params.custom_db_virus_yaml, params.custom_db_virus_fasta])
+            virus_db = channel.of([params.custom_db_virus_yaml, params.custom_db_virus_fasta])
             | build_virus_db
         } else {
-            virus_db = Channel.empty()
+            virus_db = channel.empty()
         }
 
         if(params.custom_db_centrifuge_fasta) {
@@ -271,10 +268,10 @@ workflow custom_data_base {
             | map { virus_taxids, seqid2taxid, nodes, names -> [params.custom_db_centrifuge_fasta, virus_taxids, seqid2taxid, nodes, names] }
             | build_centrifuge_index
         } else {
-            centrifuge_db = Channel.empty()
+            centrifuge_db = channel.empty()
         }
 
-        Channel.empty()
+        channel.empty()
         | mix(
             contaminants_db,
             centrifuge_db,

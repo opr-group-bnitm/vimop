@@ -132,10 +132,10 @@ workflow update_data_base {
         | map { config -> config.sub_databases[database_name] }
 
         db_parts = db_config
-        | map { db_config -> [do_update, db_config.checksum_directory, "${params.database_defaults.base}/${database_name}"] }
+        | map { sub_db_config -> [do_update, sub_db_config.checksum_directory, "${params.database_defaults.base}/${database_name}"] }
         | check_download_necessary
         | combine(db_config)
-        | map { dummy, db_config -> db_config.files }
+        | map { dummy, sub_db_config -> sub_db_config.files }
         | flatten
         | download_parts
 
@@ -145,7 +145,7 @@ workflow update_data_base {
 
         database = db_config
         | combine(collected_parts)
-        | map { db_config, parts -> [db_config, parts, database_name] }
+        | map { sub_db_config, parts -> [sub_db_config, parts, database_name] }
         | merge_parts_and_extract
     emit:
         database = database

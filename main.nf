@@ -87,7 +87,7 @@ workflow pipeline {
             | classify_centrifuge
 
             kraken_style_reports = classification
-            | map { meta, classification, report, kraken, html -> [meta.alias, kraken] }
+            | map { meta, classification_tsv, report, kraken, html -> [meta.alias, kraken] }
         } else {
             classification = Channel.empty()
 
@@ -97,7 +97,7 @@ workflow pipeline {
 
         if(db_config.doFilterWithCentrifuge) {
             to_clean = classification
-            | map { meta, classification, report, kraken, html -> [meta, meta.trimmed_reads, classification, db_config.virusTaxIDFile] }
+            | map { meta, classification_tsv, report, kraken, html -> [meta, meta.trimmed_reads, classification_tsv, db_config.virusTaxIDFile] }
             | filter_with_centrifuge
         } else {
             to_clean = trimmed
@@ -161,17 +161,17 @@ workflow pipeline {
 
         if (db_config.doClassify) {
             contig_classification = contigs
-            | map { meta, contigs -> [meta, contigs, db_config.classificationDir, db_config.classificationLibrary] }
+            | map { meta, contigs_fasta -> [meta, contigs_fasta, db_config.classificationDir, db_config.classificationLibrary] }
             | classify_contigs
             | extract_contig_classification
         } else {
             contig_classification = contigs
-            | map {meta, contigs -> meta}
+            | map {meta, contigs_fasta -> meta}
             | no_contig_classification
         }
 
         collected_contig_class_info = contig_classification
-        | map { meta, contig_classification -> [meta.alias, contig_classification] }
+        | map { meta, contig_classification_csv -> [meta.alias, contig_classification_csv] }
         | groupTuple(by: 0)
 
         assembly_stats = first_assemblies.stats
@@ -188,7 +188,7 @@ workflow pipeline {
         | groupTuple(by: 0)
 
         blast_hits = blast_queries
-        | map { meta, contigs -> [meta, contigs, db_config.blastDir, db_config.blastPrefix] }
+        | map { meta, contigs_fasta -> [meta, contigs_fasta, db_config.blastDir, db_config.blastPrefix] }
         | blast
         | extract_blasthits
 
@@ -281,7 +281,7 @@ workflow pipeline {
             | structural_variant_consensus
 
             mapped_to_sv_consensus = sv_consensus
-            | map { meta, sv_consensus -> [meta, meta.trimmed_reads, meta.structural_variants, sv_consensus, meta.bam_to_ref, meta.bai_to_ref] }
+            | map { meta, sv_consensus_fasta -> [meta, meta.trimmed_reads, meta.structural_variants, sv_consensus_fasta, meta.bam_to_ref, meta.bai_to_ref] }
             | map_to_sv_consensus
         } else {
             structural_variants = Channel.empty()
@@ -364,19 +364,19 @@ workflow pipeline {
         ch_to_publish = Channel.empty()
         | mix(
             // centrifuge classification
-            classification | map { meta, classification, report, kraken, html -> [classification, "$meta.alias/classification", "classification_${meta.alias}.tsv"] },
-            classification | map { meta, classification, report, kraken, html -> [report, "$meta.alias/classification", "classification_report_${meta.alias}.tsv"] },
-            classification | map { meta, classification, report, kraken, html -> [kraken, "$meta.alias/classification", "classification_kraken_${meta.alias}.tsv"] },
-            classification | filter { params.output_krona_plot } | map { meta, classification, report, kraken, html -> [html, "$meta.alias/classification", "classification_${meta.alias}.html"] },
+            classification | map { meta, classification_tsv, report, kraken, html -> [classification_tsv, "$meta.alias/classification", "classification_${meta.alias}.tsv"] },
+            classification | map { meta, classification_tsv, report, kraken, html -> [report, "$meta.alias/classification", "classification_report_${meta.alias}.tsv"] },
+            classification | map { meta, classification_tsv, report, kraken, html -> [kraken, "$meta.alias/classification", "classification_kraken_${meta.alias}.tsv"] },
+            classification | filter { params.output_krona_plot } | map { meta, classification_tsv, report, kraken, html -> [html, "$meta.alias/classification", "classification_${meta.alias}.html"] },
             // contigs
-            contigs | map { meta, contigs -> [contigs, "$meta.alias/assembly", "${meta.mapping_target}.contigs.fasta"] },
+            contigs | map { meta, contigs_fasta -> [contigs_fasta, "$meta.alias/assembly", "${meta.mapping_target}.contigs.fasta"] },
             // consensus
             mapped_to_ref | map { meta, ref, bam, bai -> [ref, "$meta.alias/consensus", "${meta.consensus_target}.reference.fasta"] },
             mapped_to_ref | map { meta, ref, bam, bai -> [bam, "$meta.alias/consensus", "${meta.consensus_target}.reads.bam"] },
             mapped_to_ref | map { meta, ref, bam, bai -> [bai, "$meta.alias/consensus", "${meta.consensus_target}.reads.bam.bai"] },
             structural_variants | map { meta, variants -> [variants, "$meta.alias/consensus", "${meta.consensus_target}.structural_variants.vcf"] },
             consensi | map { meta, consensus -> [consensus, "$meta.alias/consensus", "${meta.consensus_target}.consensus.fasta"] },
-            coverage | map { meta, coverage -> [coverage, "$meta.alias/consensus", "${meta.consensus_target}.depth.txt"] },
+            coverage | map { meta, coverage_txt -> [coverage_txt, "$meta.alias/consensus", "${meta.consensus_target}.depth.txt"] },
             // selected consensi
             best_consensi | map { alias, consensus_dir -> [consensus_dir, "$alias", "selected_consensus"] },
             // report and tables

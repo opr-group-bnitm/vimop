@@ -37,7 +37,7 @@ def add_run_IDs_to_meta(ch) {
 
     // extract run_ids from fastcat stats / bamstats results and add to metadata as well
     // as `ingressed_run_ids`
-    ch = ch | map { meta, reads, stats ->
+    ch = ch.map { meta, reads, stats ->
         ArrayList run_ids = []
         if (stats) {
             run_ids = stats.resolve("run_ids").splitText().collect { line -> line.strip() }
@@ -51,7 +51,7 @@ def add_run_IDs_to_meta(ch) {
     // put run_ids somewhere global for trivial access later
     // bit grim but decouples ingress metadata from workflow main.nf
     // additionally no need to use CWUtil as we're not overriding any user params
-    ch | subscribe(onComplete: {
+    ch.subscribe(onComplete: {
         params.wf["ingress.run_ids"] = ingressed_run_ids
     })
     return ch
@@ -83,8 +83,11 @@ def add_run_IDs_to_meta(ch) {
  *  `null` for sample sheet entries for which no corresponding barcode directory was
  *  found. The third element is `null` if `fastcat` was not run.
  */
-def fastq_ingress(Map arguments)
-{
+workflow fastq_ingress {
+    take:
+    arguments
+
+    main:
     // check arguments
     Map margs = parse_arguments(arguments, ["fastcat_extra_args": ""])
 
@@ -109,7 +112,10 @@ def fastq_ingress(Map arguments)
     // add sample sheet entries without barcode dirs to the results channel and extract
     // the run IDs into the metamaps before returning
     ch_result = ch_result.mix(input.missing.map { v -> v + [null] })
-    return add_run_IDs_to_meta(ch_result)
+    def ch_samples = add_run_IDs_to_meta(ch_result)
+
+    emit:
+    samples = ch_samples
 }
 
 
@@ -124,7 +130,13 @@ def fastq_ingress(Map arguments)
  * @param extensions: list of valid extensions for the target file type
  * @return: Channel of [metamap, path-to-target-file]
  */
-def watch_path(Path input, Map margs, ArrayList extensions) {
+workflow watch_path {
+    take:
+    input
+    margs
+    extensions
+
+    main:
     // we have two cases to consider: (i) files being generated in the top-level
     // directory and (ii) files being generated in sub-directories. If we find files of
     // both kinds, throw an error.
@@ -133,12 +145,12 @@ def watch_path(Path input, Map margs, ArrayList extensions) {
     }
     // get existing target files first (look for relevant files in the top-level dir and
     // all sub-dirs)
-    def ch_existing_input = Channel.fromPath(input)
+    ch_existing_input = Channel.fromPath(input)
     | concat(Channel.fromPath("$input/*", type: 'dir'))
     | map { dir -> get_target_files_in_dir(dir, extensions) }
     | flatten
     // now get channel with files found by `watchPath`
-    def ch_watched = Channel.watchPath("$input/**").until { file_path -> file_path.name.startsWith('STOP') }
+    ch_watched = Channel.watchPath("$input/**").until { file_path -> file_path.name.startsWith('STOP') }
     // only keep target files
     | filter { file_path -> is_target_file(file_path, extensions) }
     // merge the channels
@@ -202,7 +214,9 @@ def watch_path(Path input, Map margs, ArrayList extensions) {
             [create_metamap([alias: alias]), file_path]
         }
     }
-    return ch_watched
+
+    emit:
+    watched = ch_watched
 }
 
 
@@ -305,7 +319,12 @@ def parse_arguments(arguments, extra_kwargs=[:]) {
  * @param extensions: list of valid extensions for the target file type
  * @return: branched channel with branches `missing`, `dir`, and `files`
 */
-def get_valid_inputs(Map margs, ArrayList extensions){
+workflow get_valid_inputs {
+    take:
+    margs
+    extensions
+
+    main:
     log.info "Searching input for $extensions files."
     Path input
     try {
@@ -321,7 +340,7 @@ def get_valid_inputs(Map margs, ArrayList extensions){
     } else {
         // check which of the allowed input types (single file, top-lvl dir, dir with
         // sub-dirs) we got
-        InputType input_type = determine_input_type(
+        input_type = determine_input_type(
             input, extensions, margs.analyse_unclassified
         )
         // handle case of `input` being a single file
@@ -352,7 +371,7 @@ def get_valid_inputs(Map margs, ArrayList extensions){
                 )
                 // get the union of both channels (missing values will be replaced with
                 // `null`)
-                def ch_union = Channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
+                ch_union = Channel.fromPath(sub_dirs_with_target_files).map { sub_dir ->
                     [sub_dir.baseName, sub_dir]
                 }.join(ch_sample_sheet.map{ row -> [row.barcode, row]}, remainder: true)
                 // after joining the channels, there are three possible cases:
@@ -394,7 +413,11 @@ def get_valid_inputs(Map margs, ArrayList extensions){
         files: path.isFile()
         dirs: path.isDirectory()
     }
-    return ch_branched_results
+
+    emit:
+    missing = ch_branched_results.missing
+    files = ch_branched_results.files
+    dirs = ch_branched_results.dirs
 }
 
 /**
@@ -501,7 +524,12 @@ def get_target_files_in_dir(dir, extensions) {
  * @param sample_sheet: path to the sample sheet CSV
  * @return: channel of maps (with values in sample sheet header as keys)
  */
-def get_sample_sheet(Path sample_sheet, ArrayList required_sample_types) {
+workflow get_sample_sheet {
+    take:
+    sample_sheet
+    required_sample_types
+
+    main:
     // If `validate_sample_sheet` does not return an error message, we can assume that
     // the sample sheet is valid and parse it. However, because of Nextflow's
     // asynchronous magic, we might emit values from `.splitCSV()` before the
@@ -518,9 +546,12 @@ def get_sample_sheet(Path sample_sheet, ArrayList required_sample_types) {
     // concat the channel holding the path to the sample sheet to `ch_err` and call
     // `.last()` to make sure that the error-checking closure above executes before
     // emitting values from the CSV
-    return ch_err.concat(Channel.fromPath(sample_sheet)).last().splitCsv(
+    ch_rows = ch_err.concat(Channel.fromPath(sample_sheet)).last().splitCsv(
         header: true, quote: '"'
     )
+
+    emit:
+    rows = ch_rows
 }
 
 

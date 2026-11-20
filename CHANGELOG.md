@@ -13,6 +13,7 @@
 ### Fixed
 - boolean and numeric parameters given on the command line, which Nextflow 26 passes as text, are evaluated correctly (e.g. `--validate_params false`, `--assemble_notarget false`)
 - crash with `--monochrome_logs` or `--min_*` resource parameters on the command line with Nextflow 26
+- parameter validation rejected boolean and numeric parameters given on the command line with Nextflow 26 (e.g. `--min_cpus 8`, `--download_db_all`)
 
 ### Removed
 - unsupported `maxParallel` setting in `download_parts` (downloads are still limited to one at a time by `maxForks`)

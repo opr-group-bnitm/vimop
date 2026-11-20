@@ -50,12 +50,16 @@ class WorkflowMain {
             System.exit(0)
         }
 
+        // Command-line values arrive as strings under the strict syntax parser;
+        // the schema check and the summary see them with their schema types
+        def typedParams = ParamUtils.castToSchemaTypes(params, NfcoreSchema.getSchemaPath(workflow))
+
         // Validate workflow parameters via the JSON schema
         if (ParamUtils.checkFlag(params.validate_params)) {
-            NfcoreSchema.validateParameters(workflow, params, log)
+            NfcoreSchema.validateParameters(workflow, typedParams, log)
         }
 
         // Print parameter summary log to screen
-        log.info paramsSummaryLog(workflow, params, log)
+        log.info paramsSummaryLog(workflow, typedParams, log)
     }
 }

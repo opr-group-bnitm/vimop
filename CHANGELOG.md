@@ -1,7 +1,7 @@
 # Changelog
-## [Unreleased]
+## [1.0.7]
 ### Added
-- conda profile: 1 h timeout for creating the conda environments
+- conda profile: 1 h timeout for creating the conda environments to avoid hanging on slow connections (can be overridden with `--conda_timeout` parameter)
 
 ### Changed
 - code updated for the strict syntax parser of Nextflow 26 (default since 26.04); older Nextflow versions still work (checked with 24.10)

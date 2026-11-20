@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
-# Check how typed parameters given on the command line pass the schema check.
-# Nextflow 26 passes command-line values as strings, so valid numbers and booleans
-# must still be accepted, and invalid values must still be rejected.
-#
-# No process is started: every run stops at the schema check or at
-# "No fastqs provided!" (no --fastq is given).
-#
+# Checks typed command-line params against the schema check; starts no processes.
 # Usage: NEXTFLOW=/path/to/nextflow test/test_cli_params.sh
 
 set -uo pipefail
@@ -17,7 +11,6 @@ trap 'rm -rf "${work_root:?}"' EXIT
 
 failures=0
 
-# run_case <name> <expected: pass|reject|help> <args...>
 run_case() {
     local name="$1" expected="$2"
     shift 2

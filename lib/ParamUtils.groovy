@@ -5,17 +5,11 @@
 
 class ParamUtils {
 
-    // Same rule as checkFlag() in main.nf. Values passed on the command line
-    // arrive as strings under the strict syntax parser, so `--x false` would
-    // otherwise be truthy.
+    // CLI values are strings in Nextflow 26, so --x false would otherwise be truthy
     static boolean checkFlag(value) {
         return value != null && value.toString() != 'false'
     }
 
-    // Return a copy of `params` in which string values of integer, number and
-    // boolean schema parameters are converted to those types, as Nextflow 24 did
-    // for command-line values. Values that don't convert stay strings, so the
-    // schema check still rejects them.
     static Map castToSchemaTypes(Map params, String schemaPath) {
         def schema = new groovy.json.JsonSlurper().parse(new File(schemaPath))
         Map types = [:]

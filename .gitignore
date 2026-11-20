@@ -5,3 +5,5 @@ work/
 __pycache__/
 bin/workflow_glue/__pycache__/*
 output/*
+CLAUDE.md
+.claude/settings.local.json

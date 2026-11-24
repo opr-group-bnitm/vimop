@@ -3,16 +3,13 @@
 // See the LICENSE file in the root of this repository for full license details.
 
 
-nextflow.enable.dsl = 2
-
-
 def minCpus(int requestedCpus) {
     return Math.min(requestedCpus, params.custom_db_min_cpus as int)
 }
 
 
 def minRAM(int requestesRAM) {
-    ram = Math.min(requestesRAM, params.custom_db_min_ram_gb as int)
+    def ram = Math.min(requestesRAM, params.custom_db_min_ram_gb as int)
     return "${ram} GB"
 }
 
@@ -24,6 +21,7 @@ process build_contaminants_db {
         path("contaminant_dir")
     output:
         path("contaminants")
+    script:
     """
     set -euo pipefail
     shopt -s nullglob extglob
@@ -78,6 +76,7 @@ process build_virus_db {
         tuple path("virus_input_config.yaml"), path("ALL.fasta")
     output:
         path("virus")
+    script:
     """
     set -euo pipefail
 
@@ -112,6 +111,7 @@ process download_taxdump {
     maxRetries 3
     output:
         path("taxdump.tar.gz") 
+    script:
     """
     set -euo pipefail
     wget ${params.custom_db_centrifuge_taxonomy_url}
@@ -126,6 +126,7 @@ process seqid_to_taxid {
         tuple path("sequences.fasta"), path("taxdump.tar.gz")
     output:
         tuple path("virus_taxids.txt"), path("seqid2taxid.map"), path("nodes.dmp"), path("names.dmp")
+    script:
     """
     set -euo pipefail
 
@@ -184,6 +185,7 @@ process build_centrifuge_index {
             path("names.dmp")
     output:
         path("centrifuge")
+    script:
     """
     set -euo pipefail
 
@@ -238,6 +240,7 @@ process custom_data_base_transfer {
         path(db)
     output:
         path(db)
+    script:
     """
     """
 }
@@ -248,14 +251,14 @@ workflow custom_data_base {
         if(params.custom_db_contaminants_input_path) {
             contaminants_db = build_contaminants_db(params.custom_db_contaminants_input_path)
         } else {
-            contaminants_db = Channel.empty()
+            contaminants_db = channel.empty()
         }
 
         if(params.custom_db_virus_yaml && params.custom_db_virus_fasta){
-            virus_db = Channel.of([params.custom_db_virus_yaml, params.custom_db_virus_fasta])
+            virus_db = channel.of([params.custom_db_virus_yaml, params.custom_db_virus_fasta])
             | build_virus_db
         } else {
-            virus_db = Channel.empty()
+            virus_db = channel.empty()
         }
 
         if(params.custom_db_centrifuge_fasta) {
@@ -265,10 +268,10 @@ workflow custom_data_base {
             | map { virus_taxids, seqid2taxid, nodes, names -> [params.custom_db_centrifuge_fasta, virus_taxids, seqid2taxid, nodes, names] }
             | build_centrifuge_index
         } else {
-            centrifuge_db = Channel.empty()
+            centrifuge_db = channel.empty()
         }
 
-        Channel.empty()
+        channel.empty()
         | mix(
             contaminants_db,
             centrifuge_db,

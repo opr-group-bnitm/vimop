@@ -1,9 +1,9 @@
 # this is used when the nextflow pipeline is running in conda mode. 
 name: env
 channels:
-  - bioconda
   - conda-forge
-  - defaults
+  - bioconda
+  - nodefaults
 dependencies:
   - python=3.11
   - biopython=1.84

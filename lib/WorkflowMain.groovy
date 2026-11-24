@@ -38,24 +38,26 @@ class WorkflowMain {
     // Validate parameters and print summary to screen
     public static void initialise(workflow, params, log) {
         // Print help to screen if required
-        if (params.help) {
+        if (ParamUtils.checkFlag(params.help)) {
             log.info help(workflow, params, log)
             System.exit(0)
         }
 
         // Print workflow version and exit on --version
-        if (params.version) {
+        if (ParamUtils.checkFlag(params.version)) {
             String workflow_version = NfcoreTemplate.version(workflow)
             log.info "${workflow.manifest.name} ${workflow_version}"
             System.exit(0)
         }
 
+        def typedParams = ParamUtils.castToSchemaTypes(params, NfcoreSchema.getSchemaPath(workflow))
+
         // Validate workflow parameters via the JSON schema
-        if (params.validate_params) {
-            NfcoreSchema.validateParameters(workflow, params, log)
+        if (ParamUtils.checkFlag(params.validate_params)) {
+            NfcoreSchema.validateParameters(workflow, typedParams, log)
         }
 
         // Print parameter summary log to screen
-        log.info paramsSummaryLog(workflow, params, log)
+        log.info paramsSummaryLog(workflow, typedParams, log)
     }
 }

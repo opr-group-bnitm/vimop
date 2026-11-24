@@ -67,6 +67,7 @@ If you prefer to not use docker and you are using Linux, there are two alternati
 
 The **conda** profile is activated using the option `-profile conda`.
 This has been tested on
+- Ubuntu 24.04.1; Nextflow 26.10.6; conda 26.10.0
 - Ubuntu 24.04.1; Nextflow 25.10.2; conda 25.11.0
 - Ubuntu 22.04.5; Nextflow 25.10.2; conda 25.7.0
 

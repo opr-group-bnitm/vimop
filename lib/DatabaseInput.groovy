@@ -172,8 +172,8 @@ class DatabaseInput {
         assertFile("${this.blastDir}/${this.blastPrefix}.ndb")
 
         // classification
-        this.doClassify = dbParams.centrifuge_do_classify
-        this.doFilterWithCentrifuge = dbParams.centrifuge_do_classify && dbParams.centrifuge_do_filter
+        this.doClassify = ParamUtils.checkFlag(dbParams.centrifuge_do_classify)
+        this.doFilterWithCentrifuge = ParamUtils.checkFlag(dbParams.centrifuge_do_classify) && ParamUtils.checkFlag(dbParams.centrifuge_do_filter)
 
         this.classificationDir = getDir(
             dbParams.classification_db,

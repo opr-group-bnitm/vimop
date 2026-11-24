@@ -3,9 +3,6 @@
 // See the LICENSE file in the root of this repository for full license details.
 
 
-nextflow.enable.dsl = 2
-
-
 process db_update_get_config {
     label "general"
     errorStrategy "retry"
@@ -13,6 +10,7 @@ process db_update_get_config {
     cpus 1
     output:
         path("db.yaml")
+    script:
     """
     wget -o download_config.log -O db.yaml ${params.download_db_config_url}
     """
@@ -31,6 +29,7 @@ process check_download_necessary {
         tuple val(do_update), val(expected_checksum), path("db_path")
     output:
         path("dummy.txt"), optional: true
+    script:
     """
     if [ "${do_update}" == "true" ]
     then
@@ -53,7 +52,6 @@ process check_download_necessary {
 
 
 process download_parts {
-    maxParallel = 1
     label "download"
     errorStrategy "retry"
     maxRetries 3
@@ -62,6 +60,7 @@ process download_parts {
         val(file_config)
     output:
         path("${file_config.name}")
+    script:
     """
     wget -o dl_${file_config.name}.log -O ${file_config.name} ${file_config.url}
 
@@ -86,6 +85,7 @@ process merge_parts_and_extract {
         tuple val(db_config), path(parts), val(db_name)
     output:
         path("${db_name}")
+    script:
     """
     # merge the files
     ls ${parts.join(' ')} | sort | xargs cat > merged.tar.xz
@@ -129,10 +129,10 @@ workflow update_data_base {
         | map { config -> config.sub_databases[database_name] }
 
         db_parts = db_config
-        | map { db_config -> [do_update, db_config.checksum_directory, "${params.database_defaults.base}/${database_name}"] }
+        | map { sub_db_config -> [do_update, sub_db_config.checksum_directory, "${params.database_defaults.base}/${database_name}"] }
         | check_download_necessary
         | combine(db_config)
-        | map { dummy, db_config -> db_config.files }
+        | map { _dummy, sub_db_config -> sub_db_config.files }
         | flatten
         | download_parts
 
@@ -142,7 +142,7 @@ workflow update_data_base {
 
         database = db_config
         | combine(collected_parts)
-        | map { db_config, parts -> [db_config, parts, database_name] }
+        | map { sub_db_config, parts -> [sub_db_config, parts, database_name] }
         | merge_parts_and_extract
     emit:
         database = database
@@ -163,6 +163,7 @@ process data_base_transfer {
         path(db)
     output:
         path(db)
+    script:
     """
     """
 }

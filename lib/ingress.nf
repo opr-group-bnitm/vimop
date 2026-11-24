@@ -354,7 +354,7 @@ workflow get_valid_inputs {
         } else {
             // input is a directory with sub-directories (e.g. barcodes) containing
             // target files --> find these sub-directories
-            ArrayList sub_dirs_with_target_files = file(
+            ArrayList sub_dirs_with_target_files = files(
                 input.resolve('*'), type: "dir"
             ).findAll { sub_dir -> get_target_files_in_dir(sub_dir, extensions) }
             // remove directories called 'unclassified' unless otherwise specified
@@ -445,7 +445,7 @@ def determine_input_type(
     // target files and find potential sub-directories (and sub-dirs with target files;
     // note that these lists can be empty)
     boolean dir_has_target_files = get_target_files_in_dir(input, extensions)
-    ArrayList sub_dirs = file(input.resolve('*'), type: "dir")
+    ArrayList sub_dirs = files(input.resolve('*'), type: "dir")
     ArrayList sub_dirs_with_target_files = sub_dirs.findAll { sub_dir ->
         get_target_files_in_dir(sub_dir, extensions)
     }.findAll { sub_dir -> sub_dir.baseName != "unclassified" || analyse_unclassified }
@@ -472,7 +472,7 @@ def determine_input_type(
     }
     // we don't allow sub-sub-directories with target files
     if (sub_dirs.any { sub_dir ->
-        ArrayList subsubdirs = file(sub_dir.resolve('*'), type: "dir")
+        ArrayList subsubdirs = files(sub_dir.resolve('*'), type: "dir")
         subsubdirs.any { subsubdir -> get_target_files_in_dir(subsubdir, extensions) }
     }) {
         error "Input directory '$input' cannot contain more " +
@@ -514,7 +514,7 @@ def create_metamap(arguments) {
  * @return: list of found target files
  */
 def get_target_files_in_dir(dir, extensions) {
-    file(dir.resolve("*")).findAll { file_path -> is_target_file(file_path, extensions) }
+    files(dir.resolve("*")).findAll { file_path -> is_target_file(file_path, extensions) }
 }
 
 
